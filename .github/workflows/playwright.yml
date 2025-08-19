@@ -1,0 +1,42 @@
+name: Playwright Tests
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request: null
+  workflow_dispatch: null
+jobs:
+  test:
+    env:
+      SKIP_ENV_VALIDATION: true
+      SKIP_BUILD_PRODUCT_REDIRECTS: 1
+      GA_MEASUREMENT_ID: "${{ secrets.GA_MEASUREMENT_ID }}"
+      GA_PROPERTY_ID: "${{ secrets.GA_PROPERTY_ID }}"
+      GA_BASE64_SERVICE_ACCOUNT: "${{ secrets.GA_BASE64_SERVICE_ACCOUNT }}"
+      NEXT_PUBLIC_HYGRAPH_CONTENT_API_URL: "${{ secrets.NEXT_PUBLIC_HYGRAPH_CONTENT_API_URL }}"
+      NEXT_PUBLIC_ALGOLIA_API_ID: "${{ secrets.NEXT_PUBLIC_ALGOLIA_API_ID }}"
+      NEXT_PUBLIC_ALGOLIA_SEARCH_API_KEY: "${{ secrets.NEXT_PUBLIC_ALGOLIA_SEARCH_API_KEY }}"
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: echo "node_version=$(cat .github/nodejs.version)" >> $GITHUB_ENV
+      - name: "use node ${{ env.node_version }}"
+        uses: actions/setup-node@v3
+        with:
+          node-version: "${{ env.node_version }}"
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+      - name: Install Playwright Browsers
+        run: yarn playwright install --with-deps
+      - name: Run codegen
+        run: yarn run codegen
+      - name: Run Playwright tests
+        run: yarn playwright test
+      - uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 30

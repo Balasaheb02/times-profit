@@ -1,0 +1,56 @@
+name: Check
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  check:
+    env:
+      SKIP_ENV_VALIDATION: true
+
+      SKIP_BUILD_PRODUCT_REDIRECTS: 1
+      GA_MEASUREMENT_ID: "${{ secrets.GA_MEASUREMENT_ID }}"
+      GA_PROPERTY_ID: "${{ secrets.GA_PROPERTY_ID }}"
+      GA_BASE64_SERVICE_ACCOUNT: "${{ secrets.GA_BASE64_SERVICE_ACCOUNT }}"
+      NEXT_PUBLIC_HYGRAPH_CONTENT_API_URL: "${{ secrets.NEXT_PUBLIC_HYGRAPH_CONTENT_API_URL }}"
+      NEXT_PUBLIC_ALGOLIA_API_ID: "${{ secrets.NEXT_PUBLIC_ALGOLIA_API_ID }}"
+      NEXT_PUBLIC_ALGOLIA_SEARCH_API_KEY: "${{ secrets.NEXT_PUBLIC_ALGOLIA_SEARCH_API_KEY }}"
+    name: Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: echo "node_version=$(cat .github/nodejs.version)" >> $GITHUB_ENV
+      - name: "use node ${{ env.node_version }}"
+        uses: actions/setup-node@v3
+        with:
+          node-version: "${{ env.node_version }}"
+      - name: Cache node modules
+        uses: actions/cache@v2
+        with:
+          path: ~/.yarn
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+            # The line above should be indented to align with 'restore-keys: |'
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+      - name: Install Playwright Browsers
+        run: yarn playwright install --with-deps
+      - name: Lint check
+        run: yarn lint
+      - name: Format check
+        run: yarn prettier
+      - name: Unit & Integration tests
+        run: yarn test
+      - name: Smoke & Acceptance tests
+        run: |
+          yarn build-storybook --quiet
+          npx concurrently -k -s first -n "SB,TEST" -c "magenta,blue" \
+            "npx http-server storybook-static --port 6006 --silent" \
+            "npx wait-on tcp:127.0.0.1:6006 && yarn test-storybook"
