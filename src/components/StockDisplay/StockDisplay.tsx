@@ -2,7 +2,7 @@ import { z } from "zod"
 import { StockDisplayRenderer } from "./StockDisplayRenderer"
 
 export async function StockDisplay({ quotes }: { quotes: Quote[] }) {
-  const validQuotes = quotes.map((quote) => validateQuote(quote)) as Quote[]
+  const validQuotes = quotes.map((quote) => validateQuote(quote)).filter((quote): quote is Quote => quote !== null)
   return <StockDisplayRenderer quotes={validQuotes} />
 }
 

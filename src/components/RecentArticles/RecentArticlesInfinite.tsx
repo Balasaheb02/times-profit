@@ -46,9 +46,18 @@ export function RecentArticlesInfinite({ initialArticles }: RecentArticlesInfini
   return (
     <section className="flex flex-col gap-5">
       <div className="grid gap-5 md:grid-cols-3">
-        {otherArticles.filter(article => article && article.id).map((article) => {
-          return <ArticleCard key={`recent-${article.id}`} article={articleToCardProps(article)} />
-        })}
+        {otherArticles
+          .filter(article => article && article.id && article.title && article.slug)
+          .map((article) => {
+            try {
+              return <ArticleCard key={`recent-${article.id}`} article={articleToCardProps(article)} />
+            } catch (error) {
+              console.error('Error rendering article card:', error, article);
+              return null;
+            }
+          })
+          .filter(Boolean)
+        }
       </div>
       {hasNextPage && (
         <Button className="w-full rounded-xl border p-4" disabled={isFetchingNextPage} onClick={() => fetchNextPage()}>

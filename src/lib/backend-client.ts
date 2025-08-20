@@ -1,5 +1,5 @@
 import { Locale } from "@/i18n/i18n";
-import { apiClient, Article, Category, Author } from "./api-client";
+import { apiClient, Article } from "./api-client";
 
 // Helper function to convert HTML content to RichText format
 function parseHTMLToRichText(htmlContent: string) {
@@ -52,14 +52,13 @@ export async function getHomepage(_locale: Locale) {
     // Get recent articles for hero and featured content
     const recentArticles = await apiClient.getRecentArticles({ limit: 5 });
     const trendingArticles = await apiClient.getTrendingArticles({ limit: 3 });
+    const marketData = await getMarketData();
     
     return {
       heroArticle: recentArticles.length > 0 ? convertArticleToLegacyFormat(recentArticles[0]) : null,
       featuredArticles: recentArticles.slice(1).map(convertArticleToLegacyFormat),
       trendingArticles: trendingArticles.map(convertArticleToLegacyFormat),
-      marketStock: {
-        data: [] // You can integrate stock data here if needed
-      }
+      marketStock: marketData
     };
   } catch (error) {
     console.error('Error fetching homepage data:', error);
@@ -106,17 +105,6 @@ export async function listArticlesBySlugs({ slugs, locale: _locale }: { slugs: s
   } catch (error) {
     console.error('Error fetching articles by slugs:', error);
     return [];
-  }
-}
-
-// Get page by slug
-export async function getPageBySlug(slug: string, _locale: Locale) {
-  try {
-    const article = await apiClient.getArticleBySlug(slug);
-    return convertArticleToLegacyFormat(article);
-  } catch (error) {
-    console.error(`Error fetching page ${slug}:`, error);
-    return null;
   }
 }
 
@@ -255,24 +243,35 @@ export async function getCategories(_locale: Locale) {
 export async function getNavigation(_locale: Locale) {
   try {
     const categories = await getCategories(_locale);
+    const headerMenu = await apiClient.getHeaderMenu();
+    const settings = await getSiteSettings();
+    
     return {
       navigation: {
         logo: {
-          title: "Next News",
+          title: settings.site_title || "Next News",
           href: `/${_locale}`
         },
-        elements: categories.map(category => ({
-          element: {
-            __typename: "Category",
-            slug: category.slug,
-            name: category.name
-          }
-        }))
+        elements: [
+          // Add header menu items first
+          ...headerMenu.map(item => ({
+            element: {
+              __typename: "Page",
+              slug: item.url?.replace('/', '') || item.title.toLowerCase().replace(/\s+/g, '-'),
+              title: item.title
+            }
+          })),
+          // Then add categories
+          ...categories.map(category => ({
+            element: {
+              __typename: "Category",
+              slug: category.slug,
+              title: category.name
+            }
+          }))
+        ]
       },
-      footer: {
-        legalLinks: [],
-        socialLinks: []
-      }
+      footer: await getFooterData(_locale).then(data => data.footer)
     };
   } catch (error) {
     console.error('Error fetching navigation:', error);
@@ -309,40 +308,206 @@ export { apiClient };
 // Legacy exports for backward compatibility
 export const getQuizData = async () => ({ questions: [] });
 export const getQuizzes = async () => [];
-export const getStock = async () => ({ quotes: [] });
 
-// Additional legacy functions for page handling
-export const getPageMetadataBySlug = async (slug: string, _locale: Locale) => {
+// Quiz functions
+export async function getQuizQuestionsById({ locale: _locale, id, skip: _skip }: { locale: Locale; id: string; skip: number }) {
   try {
-    const article = await apiClient.getArticleBySlug(slug);
+    const response = await apiClient.getQuizQuestions(id);
+    
+    // Convert to legacy format expected by frontend
+    return response.questions.map(question => ({
+      id: question.id,
+      question: question.question_text,
+      content: {
+        raw: question.question_text
+      },
+      answer: question.answers?.map(answer => ({
+        id: answer.id,
+        text: answer.answer_text,
+        content: {
+          raw: answer.answer_text
+        },
+        isCorrect: answer.is_correct,
+        isValid: answer.is_correct
+      })) || []
+    }));
+  } catch (error) {
+    console.error('Error fetching quiz questions:', error);
+    return [];
+  }
+}
+
+export async function getAllQuizzes(_locale: Locale) {
+  try {
+    const response = await apiClient.getQuizzes();
+    return response.quizzes.map(quiz => ({
+      id: quiz.id,
+      title: quiz.title,
+      slug: quiz.slug,
+      description: quiz.description,
+      isActive: quiz.is_active
+    }));
+  } catch (error) {
+    console.error('Error fetching quizzes:', error);
+    return [];
+  }
+}
+
+// Page functions
+export async function getPageBySlug(slug: string, _locale: Locale) {
+  try {
+    const page = await apiClient.getPageBySlug(slug);
     return {
+      id: page.id,
+      title: page.title,
+      slug: page.slug,
+      content: {
+        raw: page.content
+      },
       seoComponent: {
-        title: article.title,
-        description: { text: article.excerpt || article.title }
+        title: page.meta_title || page.title,
+        description: {
+          text: page.meta_description || ''
+        }
       }
     };
   } catch (error) {
+    console.error('Error fetching page:', error);
+    return null;
+  }
+}
+
+export async function getPageMetadataBySlug(slug: string, _locale: Locale) {
+  try {
+    const page = await apiClient.getPageBySlug(slug);
     return {
       seoComponent: {
-        title: "Page Not Found",
-        description: { text: "The requested page could not be found." }
+        title: page.meta_title || page.title,
+        description: {
+          text: page.meta_description || ''
+        }
       }
     };
+  } catch (error) {
+    console.error('Error fetching page metadata:', error);
+    return null;
   }
-};
+}
 
-export const listPagesForSitemap = async (_locale: Locale) => {
+export async function listPagesForSitemap(_locale: Locale) {
   try {
-    const articles = await apiClient.getArticles({ per_page: 100, published: true });
-    return articles.articles.map(article => ({
-      slug: article.slug,
-      updatedAt: article.updated_at
+    const response = await apiClient.getPages({ published: true });
+    return response.pages.map(page => ({
+      slug: page.slug,
+      title: page.title
     }));
   } catch (error) {
     console.error('Error fetching pages for sitemap:', error);
     return [];
   }
-};
+}
+
+// Stock market functions
+export async function getMarketData() {
+  try {
+    const response = await apiClient.getStockQuotes({ limit: 10 });
+    return {
+      data: response.stocks.map(stock => ({
+        id: stock.id,
+        name: stock.symbol,
+        change: `${stock.percent_change || 0}%`,
+        symbol: stock.symbol,
+        price: stock.current_price,
+        percentChange: stock.percent_change,
+        volume: stock.volume
+      }))
+    };
+  } catch (error) {
+    console.error('Error fetching market data:', error);
+    return { data: [] };
+  }
+}
+
+export async function getTrendingStocks(limit = 5) {
+  try {
+    const response = await apiClient.getTrendingStocks({ limit });
+    return response.trending_stocks.map(stock => ({
+      symbol: stock.symbol,
+      company: stock.company_name,
+      price: stock.current_price,
+      change: stock.price_change,
+      percentChange: stock.percent_change
+    }));
+  } catch (error) {
+    console.error('Error fetching trending stocks:', error);
+    return [];
+  }
+}
+
+// Site settings functions
+export async function getSiteSettings() {
+  try {
+    const response = await apiClient.getAllSettings();
+    return response.settings;
+  } catch (error) {
+    console.error('Error fetching site settings:', error);
+    return {};
+  }
+}
+
+export async function getFooterData(_locale: Locale) {
+  try {
+    const settings = await getSiteSettings();
+    const footerMenu = await apiClient.getFooterMenu();
+    
+    return {
+      footer: {
+        companyName: settings.site_title || 'Next News',
+        contactSection: {
+          street: settings.footer_address?.split(',')[0] || '123 News Street',
+          city: settings.footer_address?.split(',')[1] || 'Media City',
+          country: settings.footer_address?.split(',')[2] || 'NY 10001',
+          postCode: '10001'
+        },
+        logo: {
+          url: '/logo.png',
+          title: settings.site_title || 'Next News'
+        },
+        links: footerMenu.map(item => ({
+          element: {
+            __typename: 'Page',
+            slug: item.url?.replace('/', '') || item.title.toLowerCase().replace(/\s+/g, '-'),
+            title: item.title
+          }
+        })),
+        instagramLink: settings.social_instagram,
+        facebookLink: settings.social_facebook,
+        twitterLink: settings.social_twitter,
+        youtubeLink: settings.social_youtube
+      }
+    };
+  } catch (error) {
+    console.error('Error fetching footer data:', error);
+    return {
+      footer: {
+        companyName: 'Next News',
+        contactSection: {
+          street: '123 News Street',
+          city: 'Media City',
+          country: 'NY 10001',
+          postCode: '10001'
+        },
+        logo: { url: '/logo.png', title: 'Next News' },
+        links: [],
+        instagramLink: '',
+        facebookLink: '',
+        twitterLink: '',
+        youtubeLink: ''
+      }
+    };
+  }
+}
+export const getStock = async () => ({ quotes: [] });
 
 export async function getArticleRecommendedArticles(variables: { locale: Locale; id: string }) {
   try {
@@ -364,9 +529,16 @@ export async function getArticleRecommendedArticles(variables: { locale: Locale;
 
 export async function getArticleBySlug(variables: { locale: Locale; slug: string }) {
   try {
-    const response = await apiClient.getArticles({ per_page: 100, published: true });
-    const article = response.articles.find((a) => a.slug === variables.slug);
-    return article ? convertArticleToLegacyFormat(article) : null;
+    console.log('getArticleBySlug called with slug:', variables.slug);
+    
+    // Use the specific endpoint for getting article by slug
+    const article = await apiClient.getArticleBySlug(variables.slug);
+    console.log('Article fetched from API:', { id: article.id, title: article.title, slug: article.slug });
+    
+    const convertedArticle = convertArticleToLegacyFormat(article);
+    console.log('Converted article:', { id: convertedArticle.id, title: convertedArticle.title });
+    
+    return convertedArticle;
   } catch (error) {
     console.error('Error fetching article by slug:', error);
     return null;
@@ -394,11 +566,6 @@ export async function getGlobalTranslations(_locale: Locale) {
     recent: "Recent",
     trending: "Trending"
   };
-}
-
-export async function getQuizQuestionsById(_variables: { locale: Locale; id: string }) {
-  // Return empty array for now - quizzes would be implemented later
-  return [];
 }
 
 export async function getRecentArticlesByCategory(variables: { locale: Locale; categoryId: string; limit: number }) {

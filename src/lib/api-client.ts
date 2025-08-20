@@ -221,6 +221,161 @@ class ApiClient {
   async healthCheck() {
     return this.request<{ status: string; message: string }>('/health');
   }
+
+  // Quizzes API
+  async getQuizzes(params?: { page?: number; per_page?: number; active?: boolean }) {
+    const searchParams = new URLSearchParams();
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined) {
+          searchParams.append(key, value.toString());
+        }
+      });
+    }
+    
+    const query = searchParams.toString();
+    return this.request<{
+      quizzes: Quiz[];
+      total: number;
+      pages: number;
+      current_page: number;
+    }>(`/quizzes${query ? `?${query}` : ''}`);
+  }
+
+  async getQuiz(id: string) {
+    return this.request<Quiz>(`/quizzes/${id}`);
+  }
+
+  async getQuizQuestions(id: string) {
+    return this.request<{
+      quiz_id: string;
+      questions: Question[];
+    }>(`/quizzes/${id}/questions`);
+  }
+
+  async getQuestion(id: string) {
+    return this.request<Question>(`/quizzes/questions/${id}`);
+  }
+
+  async getQuestionAnswers(id: string) {
+    return this.request<{
+      question_id: string;
+      answers: Answer[];
+    }>(`/quizzes/questions/${id}/answers`);
+  }
+
+  // Pages API
+  async getPages(params?: { page?: number; per_page?: number; published?: boolean }) {
+    const searchParams = new URLSearchParams();
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined) {
+          searchParams.append(key, value.toString());
+        }
+      });
+    }
+    
+    const query = searchParams.toString();
+    return this.request<{
+      pages: Page[];
+      total: number;
+      pages: number;
+      current_page: number;
+    }>(`/pages${query ? `?${query}` : ''}`);
+  }
+
+  async getPageById(id: string) {
+    return this.request<Page>(`/pages/${id}`);
+  }
+
+  async getPageBySlug(slug: string) {
+    return this.request<Page>(`/pages/slug/${slug}`);
+  }
+
+  // Menu API
+  async getMenuItems(type?: 'header' | 'footer') {
+    const query = type ? `?type=${type}` : '';
+    return this.request<{
+      menu_type: string;
+      items: MenuItem[];
+    }>(`/menu${query}`);
+  }
+
+  async getHeaderMenu() {
+    return this.request<MenuItem[]>('/menu/header');
+  }
+
+  async getFooterMenu() {
+    return this.request<MenuItem[]>('/menu/footer');
+  }
+
+  // Stocks API
+  async getStockQuotes(params?: { limit?: number }) {
+    const searchParams = new URLSearchParams();
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined) {
+          searchParams.append(key, value.toString());
+        }
+      });
+    }
+    
+    const query = searchParams.toString();
+    return this.request<{
+      stocks: StockQuote[];
+      count: number;
+    }>(`/stocks${query ? `?${query}` : ''}`);
+  }
+
+  async getStockBySymbol(symbol: string) {
+    return this.request<StockQuote>(`/stocks/${symbol}`);
+  }
+
+  async getTrendingStocks(params?: { limit?: number }) {
+    const searchParams = new URLSearchParams();
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined) {
+          searchParams.append(key, value.toString());
+        }
+      });
+    }
+    
+    const query = searchParams.toString();
+    return this.request<{
+      trending_stocks: StockQuote[];
+      count: number;
+    }>(`/stocks/trending${query ? `?${query}` : ''}`);
+  }
+
+  // Settings API
+  async getAllSettings() {
+    return this.request<{
+      settings: Record<string, any>;
+      raw_settings: SiteSetting[];
+    }>('/settings');
+  }
+
+  async getSetting(key: string) {
+    return this.request<{
+      key: string;
+      value: any;
+      type: string;
+      description: string;
+    }>(`/settings/${key}`);
+  }
+
+  async getNavigationSettings() {
+    return this.request<SiteSetting[]>('/settings/navigation');
+  }
+
+  async getFooterSettings() {
+    return this.request<SiteSetting[]>('/settings/footer');
+  }
+
+  async getSeoSettings() {
+    return this.request<SiteSetting[]>('/settings/seo');
+  }
 }
 
 // Types
@@ -274,6 +429,77 @@ export interface User {
   email: string;
   is_admin: boolean;
   created_at: string;
+}
+
+export interface Quiz {
+  id: string;
+  title: string;
+  slug: string;
+  description?: string;
+  is_active: boolean;
+  created_at: string;
+  questions?: Question[];
+}
+
+export interface Question {
+  id: string;
+  quiz_id: string;
+  question_text: string;
+  question_order: number;
+  created_at: string;
+  answers?: Answer[];
+}
+
+export interface Answer {
+  id: string;
+  question_id: string;
+  answer_text: string;
+  is_correct: boolean;
+  answer_order: number;
+  created_at: string;
+}
+
+export interface Page {
+  id: string;
+  title: string;
+  slug: string;
+  content?: string;
+  meta_title?: string;
+  meta_description?: string;
+  is_published: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface MenuItem {
+  id: string;
+  title: string;
+  url?: string;
+  menu_order: number;
+  is_active: boolean;
+  menu_type: string;
+  created_at: string;
+}
+
+export interface StockQuote {
+  id: string;
+  symbol: string;
+  company_name?: string;
+  current_price?: number;
+  price_change?: number;
+  percent_change?: number;
+  volume?: number;
+  market_cap?: number;
+  updated_at: string;
+}
+
+export interface SiteSetting {
+  id: string;
+  setting_key: string;
+  setting_value?: string;
+  setting_type: string;
+  description?: string;
+  updated_at: string;
 }
 
 // Export singleton instance
