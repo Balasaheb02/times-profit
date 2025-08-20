@@ -1,5 +1,5 @@
 import { cn } from "@/utils/cn"
-import { ArticleCard, hygraphArticleToCardProps } from "../ArticleCard/ArticleCard"
+import { ArticleCard, articleToCardProps } from "../ArticleCard/ArticleCard"
 
 type Nullable<T extends object> = T | null
 
@@ -40,7 +40,7 @@ export function ArticlesGrid({ articles, cardsOrientation, className }: Artilces
           <ArticleCard
             orientation={cardsOrientation}
             key={`trending-${article.id}`}
-            article={hygraphArticleToCardProps(article)}
+            article={articleToCardProps(article)}
             tagsPosition="under"
           />
         )

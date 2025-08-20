@@ -1,7 +1,7 @@
 import { useLocale } from "@/i18n/i18n"
 import { cn } from "@/utils/cn"
 import { getTrendingArticles } from "./getTrendingArticles"
-import { ArticleCard, hygraphArticleToCardProps } from "../ArticleCard/ArticleCard"
+import { ArticleCard, articleToCardProps } from "../ArticleCard/ArticleCard"
 import { ArticleMinifiedCard } from "../ArticleCard/ArticleMinifiedCard"
 
 type TrendingArticlesProps = {
@@ -27,7 +27,7 @@ export async function TrendingArticles({ title }: TrendingArticlesProps) {
               {mainArticle && (
                 <div className="md:h-[388px]">
                   <ArticleCard
-                    article={hygraphArticleToCardProps(mainArticle)}
+                    article={articleToCardProps(mainArticle)}
                     tagsPosition="over"
                     lines={"1"}
                     isMain={true}
@@ -40,7 +40,7 @@ export async function TrendingArticles({ title }: TrendingArticlesProps) {
                     return (
                       <ArticleCard
                         key={`trending-${article.id}`}
-                        article={hygraphArticleToCardProps(article)}
+                        article={articleToCardProps(article)}
                         tagsPosition="under"
                       />
                     )

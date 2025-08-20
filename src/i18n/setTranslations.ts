@@ -1,14 +1,13 @@
 import pickBy from "lodash/pickBy"
 import { cache } from "react"
-import { GetGlobalTranslationsQuery } from "@/gql/graphql"
-import { getGlobalTranslations } from "@/lib/client"
+import { notFound } from "next/navigation"
+import { getGlobalTranslations } from "@/lib/backend-client"
 import { Locale } from "./i18n"
 
 type NonNullableProperty<T> = { [P in keyof T]: NonNullable<T[P]> }
 type RequiredNonNullable<T> = Required<NonNullableProperty<T>>
-export type GlobalTranslations = RequiredNonNullable<
-  Omit<NonNullable<NonNullable<GetGlobalTranslationsQuery["translationsSingleton"]>["translations"]>, "__typename">
->
+
+export type GlobalTranslations = any
 
 export const defaultTranslations = {
   showMore: "Show More (fallback)",

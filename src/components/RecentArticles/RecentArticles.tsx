@@ -1,7 +1,7 @@
 import { useLocale } from "@/i18n/i18n"
-import { getRecentArticlesWithMain } from "@/lib/client"
+import { getRecentArticlesWithMain } from "@/lib/backend-client"
 import { RecentArticlesInfiniteDynamic } from "./RecentArticlesInfiniteDynamic"
-import { ArticleCard, hygraphArticleToCardProps } from "../ArticleCard/ArticleCard"
+import { ArticleCard, articleToCardProps } from "../ArticleCard/ArticleCard"
 
 export const RECENT_ARTICLES_PER_PAGE = 6
 
@@ -19,7 +19,7 @@ export async function RecentArticles({ title }: RecentArticlesProps) {
       <h2 className="py-12 pb-8 text-3xl font-bold">{title}</h2>
       <div className="pb-5">
         <ArticleCard
-          article={hygraphArticleToCardProps(mainArticle)}
+          article={articleToCardProps(mainArticle)}
           orientation="horizontal"
           imageClassName="lg:w-1/2"
           tagsPosition="over"

@@ -1,9 +1,8 @@
 import { Metadata } from "next"
 import { notFound } from "next/navigation"
 import { unstable_setRequestLocale } from "next-intl/server"
-import { RichText } from "@/components/RichText/RichText"
 import { hygraphLocaleToStandardNotation, i18n, Locale } from "@/i18n/i18n"
-import { getPageBySlug, getPageMetadataBySlug, listPagesForSitemap } from "@/lib/client"
+import { getPageBySlug, getPageMetadataBySlug, listPagesForSitemap } from "@/lib/backend-client"
 import { getMatadataObj } from "@/utils/getMetadataObj"
 
 type CustomPageProps = {
@@ -13,14 +12,23 @@ type CustomPageProps = {
 export async function generateStaticParams() {
   const pages = await Promise.all(i18n.locales.map((locale) => listPagesForSitemap(locale)))
   const flatPages = pages.flatMap((pages) => pages)
-  return flatPages.map(({ slug, locale }) => ({
-    lang: hygraphLocaleToStandardNotation(locale),
-    slug,
-  }))
+  
+  // Generate params for each locale and slug combination
+  const staticParams = []
+  for (const locale of i18n.locales) {
+    for (const page of flatPages) {
+      staticParams.push({
+        lang: hygraphLocaleToStandardNotation(locale),
+        slug: page.slug,
+      })
+    }
+  }
+  
+  return staticParams
 }
 
 export async function generateMetadata({ params: { slug, lang } }: CustomPageProps): Promise<Metadata | null> {
-  const metaData = await getPageMetadataBySlug({ locale: lang, slug })
+  const metaData = await getPageMetadataBySlug(slug, lang)
   if (!metaData) return null
 
   const { seoComponent } = metaData
@@ -30,13 +38,22 @@ export async function generateMetadata({ params: { slug, lang } }: CustomPagePro
 
 export default async function Web({ params: { slug, lang } }: CustomPageProps) {
   unstable_setRequestLocale(lang)
-  const page = await getPageBySlug({ locale: lang, slug })
+  const page = await getPageBySlug(slug, lang)
 
   if (!page) notFound()
   return (
     <section className="w-full px-4 pb-16 pt-8">
       <h1 className="mb-8 text-2xl font-semibold">{page.title}</h1>
-      <RichText raw={page.content?.raw} />
+      {page.content?.raw && (
+        <div 
+          className="prose prose-gray max-w-none"
+          dangerouslySetInnerHTML={{ 
+            __html: typeof page.content.raw === 'string' 
+              ? page.content.raw 
+              : JSON.stringify(page.content.raw)
+          }} 
+        />
+      )}
     </section>
   )
 }

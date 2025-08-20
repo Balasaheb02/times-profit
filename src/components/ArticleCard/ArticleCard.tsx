@@ -1,4 +1,3 @@
-import { RichTextContent } from "@graphcms/rich-text-types"
 import Image from "next/image"
 import Link from "next/link"
 import { useLocale } from "@/i18n/i18n"
@@ -16,7 +15,7 @@ type ArticleCardProps = {
     publicationDate: string | null
     tags: string[]
     slug: string
-    content?: { raw: RichTextContent } | null
+    content?: { raw: any } | null
     author: {
       name: string
       imageUrl?: string
@@ -29,24 +28,24 @@ type ArticleCardProps = {
   imageClassName?: string
 }
 
-export const hygraphArticleToCardProps = (article: {
+export const articleToCardProps = (article: {
   tags: { tag: string }[]
   title: string
   author?: { name: string; avatar?: { data: { url: string } } | undefined | null } | null
   image?: { data: { url: string }; description?: { text: string } | undefined | null } | null
   publishedAt?: string
-  content?: { raw: RichTextContent } | null
+  content?: { raw: any } | null
   slug: string
 }) => {
   return {
-    tags: article?.tags?.map(({ tag }) => tag),
+    tags: article?.tags?.map(({ tag }) => tag) || [],
     imageUrl: article?.image?.data?.url,
-    imageAlt: article.image?.description?.text,
-    title: article?.title,
+    imageAlt: article?.image?.description?.text,
+    title: article?.title || "Untitled",
     content: article?.content,
     author: { name: article?.author?.name ?? "Anonymous", imageUrl: article?.author?.avatar?.data?.url },
     publicationDate: article?.publishedAt ? article.publishedAt : null,
-    slug: article?.slug,
+    slug: article?.slug || "",
   }
 }
 

@@ -1,34 +1,32 @@
 import { useLocale as useLocaleIntl } from "next-intl"
-import { Locale as HygraphLocaleEnum } from "../gql/graphql"
 
-export { HygraphLocaleEnum }
+// Define supported locales without Hygraph dependency
+export type Locale = "en" | "es" | "fr" | "de" | "it" | "pt" | "ja" | "ko" | "zh" | "ar"
 
-export type HygraphLocale = `${HygraphLocaleEnum}`
-
-export type Locale = Replace<HygraphLocale, "_", "-">
-
-type Replace<
-  T extends string,
-  S extends string,
-  D extends string,
-  A extends string = "",
-> = T extends `${infer L}${S}${infer R}` ? Replace<R, S, D, `${A}${L}${D}`> : `${A}${T}`
-
-const locales = Object.values(HygraphLocaleEnum).map(
-  (hygraphLocale) => hygraphLocaleToStandardNotation(hygraphLocale) as Locale
-)
+const locales: Locale[] = ["en", "es", "fr", "de", "it", "pt", "ja", "ko", "zh", "ar"]
 
 const defaultLocale: Locale = "en"
 
-export function hygraphLocaleToStandardNotation(locale: string) {
-  return locale.replace("_", "-")
-}
-
-export function standardNotationToHygraphLocale(locale: Locale) {
-  return locale.replace("-", "_") as HygraphLocaleEnum
-}
-
 export const useLocale = () => useLocaleIntl() as Locale
+
+// Backward compatibility function for Hygraph locale conversion
+export const hygraphLocaleToStandardNotation = (locale: string): Locale => {
+  // Convert Hygraph locale format to standard locale
+  const localeMap: Record<string, Locale> = {
+    'en': 'en',
+    'es': 'es',
+    'fr': 'fr',
+    'de': 'de',
+    'it': 'it',
+    'pt': 'pt',
+    'ja': 'ja',
+    'ko': 'ko',
+    'zh': 'zh',
+    'ar': 'ar',
+  }
+  
+  return localeMap[locale] || 'en'
+}
 
 export const i18n = {
   locales,

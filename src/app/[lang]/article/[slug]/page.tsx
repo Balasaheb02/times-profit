@@ -4,7 +4,7 @@ import { RichText } from "@/components/RichText/RichText"
 import { ShareOnSocial } from "@/components/ShareOnSocial/ShareOnSocial"
 import { env } from "@/env.mjs"
 import { Locale } from "@/i18n/i18n"
-import { getArticleBySlug, getArticleMetadataBySlug } from "@/lib/client"
+import { getArticleBySlug, getArticleMetadataBySlug } from "@/lib/backend-client"
 import { getMatadataObj } from "@/utils/getMetadataObj"
 import { notFound } from "next/navigation"
 import { Metadata } from "next/types"
@@ -40,7 +40,7 @@ export default async function Web({ params: { slug, lang } }: ArticlePageProps) 
             publicationDate: publishedAt,
             title,
             author: { name: author?.name ?? "Anonymous", imageUrl: author?.avatar?.data?.url },
-            tags: tags.map(({ tag }) => tag),
+            tags: tags.map(({ tag }: { tag: string }) => tag),
             slug,
           }}
           asLink={false}

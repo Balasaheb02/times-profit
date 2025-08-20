@@ -1,7 +1,7 @@
 import { getServerSideSitemap } from "next-sitemap"
 import { env } from "@/env.mjs"
 import { Locale } from "@/i18n/i18n"
-import { listArticlesForSitemap } from "@/lib/client"
+import { listArticlesForSitemap } from "@/lib/backend-client"
 
 const MAX_ARTICLES_PER_SITEMAP = 1000
 

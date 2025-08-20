@@ -1,7 +1,7 @@
 import { getServerSideSitemap } from "next-sitemap"
 import { env } from "@/env.mjs"
 import { Locale } from "@/i18n/i18n"
-import { listPagesForSitemap } from "@/lib/client"
+import { listPagesForSitemap } from "@/lib/backend-client"
 
 async function generateSitemapFields(locale: Locale) {
   const pages = await listPagesForSitemap(locale)

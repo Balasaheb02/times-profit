@@ -2,15 +2,14 @@
 
 import { useInfiniteQuery } from "@tanstack/react-query"
 import { Button } from "@/components/ui/Button/Button"
-import { ListArticlesByCategoryQuery } from "@/gql/graphql"
 import { useLocale } from "@/i18n/i18n"
 import { useTranslations } from "@/i18n/useTranslations"
-import { listArticlesByCategory } from "@/lib/client"
+import { listArticlesByCategory } from "@/lib/backend-client"
 import { CATEGORY_ARTICLES_PER_PAGE } from "./CategoryArticles"
 import { ArticlesGrid } from "../ArticlesGrid/ArticlesGrid"
 
 export type CategoryArticlesInfiniteProps = {
-  initialArticles: { articles: ListArticlesByCategoryQuery["articles"]; count: number }
+  initialArticles: { articles: any[]; count: number }
   category: string
 }
 

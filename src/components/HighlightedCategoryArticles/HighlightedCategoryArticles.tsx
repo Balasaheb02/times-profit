@@ -1,6 +1,6 @@
 import { useLocale } from "@/i18n/i18n"
-import { getRecentArticlesByCategory } from "@/lib/client"
-import { ArticleCard, hygraphArticleToCardProps } from "../ArticleCard/ArticleCard"
+import { getRecentArticlesByCategory } from "@/lib/backend-client"
+import { ArticleCard, articleToCardProps } from "../ArticleCard/ArticleCard"
 
 export const RECENT_ARTICLES_PER_PAGE = 4
 
@@ -21,7 +21,7 @@ export async function HighlightedCategoryArticles({ title, categoryId }: RecentA
           <ArticleCard
             orientation="horizontal"
             key={`category-${article.id}`}
-            article={hygraphArticleToCardProps(article)}
+            article={articleToCardProps(article)}
             lines="3"
           />
         ))}

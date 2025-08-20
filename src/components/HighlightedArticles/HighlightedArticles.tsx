@@ -1,9 +1,8 @@
-import { GetHomepageQuery } from "@/gql/graphql"
-import { ArticleCard, hygraphArticleToCardProps } from "../ArticleCard/ArticleCard"
+import { ArticleCard, articleToCardProps } from "../ArticleCard/ArticleCard"
 
 type HighlightedArticlesProps = {
   title: string
-  articles: GetHomepageQuery["homepages"][0]["highlightedArticles"]
+  articles: any[]
 }
 
 export async function HighlightedArticles({ title, articles }: HighlightedArticlesProps) {
@@ -18,7 +17,7 @@ export async function HighlightedArticles({ title, articles }: HighlightedArticl
               key={`highlighted-${article.id}`}
               tagsPosition="over"
               lines={"2"}
-              article={hygraphArticleToCardProps(article)}
+              article={articleToCardProps(article)}
             />
           )
         })}

@@ -3,12 +3,25 @@
 import { useQuery } from "@tanstack/react-query"
 import { ArrowRight, Check, XCircle } from "lucide-react"
 import { useState } from "react"
-import { QuizAnswer, QuizQuestion } from "@/gql/graphql"
 import { useLocale } from "@/i18n/i18n"
-import { getQuizQuestionsById } from "@/lib/client"
+import { getQuizQuestionsById } from "@/lib/backend-client"
 import { cn } from "@/utils/cn"
 import { RichText } from "../RichText/RichText"
 import { Skeleton } from "../ui/Skeleton/Skeleton"
+
+type QuizAnswer = {
+  id: string
+  text: string
+  isCorrect?: boolean
+  status?: "clicked" | null
+}
+
+type QuizQuestion = {
+  id: string
+  question: string
+  answer: QuizAnswer[]
+  isAnswered?: boolean
+}
 
 type ExtendedQuizAnswer = QuizAnswer & { status?: "clicked" | null }
 

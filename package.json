@@ -3,9 +3,9 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "dev": "npm-run-all --parallel \"development\" \"codegen --watch\"",
+    "dev": "cross-env FORCE_COLOR=1 next dev",
     "development": "cross-env FORCE_COLOR=1 next dev",
-    "build": "graphql-codegen --require dotenv/config --config codegen.ts && next build",
+    "build": "next build",
     "postbuild": "next-sitemap  --config next-sitemap.config.js",
     "start": "next start",
     "lint": "next lint",
@@ -21,8 +21,7 @@
     "e2e:ui": "playwright test --ui",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "postinstall": "npx patch-package -y",
-    "coupling-graph": "npx madge --extensions js,jsx,ts,tsx,css,md,mdx ./ --exclude '.next|tailwind.config.js|reset.d.ts|prettier.config.js|postcss.config.js|playwright.config.ts|next.config.js|next-env.d.ts|instrumentation.ts|e2e/|README.md|.storybook/|.eslintrc.js' --image graph.svg",
-    "codegen": "graphql-codegen --require dotenv/config --config codegen.ts"
+    "coupling-graph": "npx madge --extensions js,jsx,ts,tsx,css,md,mdx ./ --exclude '.next|tailwind.config.js|reset.d.ts|prettier.config.js|postcss.config.js|playwright.config.ts|next.config.js|next-env.d.ts|instrumentation.ts|e2e/|README.md|.storybook/|.eslintrc.js' --image graph.svg"
   },
   "dependencies": {
     "@formatjs/intl-localematcher": "^0.4.0",

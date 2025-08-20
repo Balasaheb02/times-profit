@@ -5,7 +5,7 @@ import { Navigation } from "@/components/Navigation/Navigation"
 import { env } from "@/env.mjs"
 import { i18n, type Locale } from "@/i18n/i18n"
 import { setTranslations } from "@/i18n/setTranslations"
-import { getNavigation } from "@/lib/client"
+import { getNavigation } from "@/lib/backend-client"
 import "@/styles/tailwind.css"
 import { GoogleAnalytics } from "../GoogleAnalytics"
 import Providers from "../Providers"
@@ -13,6 +13,7 @@ import Providers from "../Providers"
 export async function generateMetadata({ params }: { params: { lang: Locale } }) {
   const locale = params.lang ?? i18n.defaultLocale
   return {
+    metadataBase: new URL(env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'),
     title: "Blazity-Hygraph news starter",
     openGraph: {
       url: env.NEXT_PUBLIC_SITE_URL,

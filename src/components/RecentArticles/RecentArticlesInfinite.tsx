@@ -2,15 +2,14 @@
 
 import { useInfiniteQuery } from "@tanstack/react-query"
 import { Button } from "@/components/ui/Button/Button"
-import { GetRecentArticlesQuery } from "@/gql/graphql"
 import { useLocale } from "@/i18n/i18n"
 import { useTranslations } from "@/i18n/useTranslations"
-import { getRecentArticles } from "@/lib/client"
+import { getRecentArticles } from "@/lib/backend-client"
 import { RECENT_ARTICLES_PER_PAGE } from "./RecentArticles"
-import { ArticleCard, hygraphArticleToCardProps } from "../ArticleCard/ArticleCard"
+import { ArticleCard, articleToCardProps } from "../ArticleCard/ArticleCard"
 
 export type RecentArticlesInfiniteProps = {
-  initialArticles: { articles: GetRecentArticlesQuery["articles"]; count: number }
+  initialArticles: { articles: any[]; count: number }
 }
 
 export function RecentArticlesInfinite({ initialArticles }: RecentArticlesInfiniteProps) {
@@ -47,8 +46,8 @@ export function RecentArticlesInfinite({ initialArticles }: RecentArticlesInfini
   return (
     <section className="flex flex-col gap-5">
       <div className="grid gap-5 md:grid-cols-3">
-        {otherArticles.map((article) => {
-          return <ArticleCard key={`recent-${article.id}`} article={hygraphArticleToCardProps(article)} />
+        {otherArticles.filter(article => article && article.id).map((article) => {
+          return <ArticleCard key={`recent-${article.id}`} article={articleToCardProps(article)} />
         })}
       </div>
       {hasNextPage && (

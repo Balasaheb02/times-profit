@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation"
 import { useLocale } from "@/i18n/i18n"
 import { getTranslations } from "@/i18n/setTranslations"
-import { listArticlesByCategory } from "@/lib/client"
+import { listArticlesByCategory } from "@/lib/backend-client"
 import { CategoryArticlesInfiniteDynamic } from "./CategoryArticlesInfiniteDynamic"
 
 export const CATEGORY_ARTICLES_PER_PAGE = 4

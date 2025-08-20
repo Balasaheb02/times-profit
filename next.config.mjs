@@ -26,6 +26,14 @@ const config = withPlugins(
         {
           protocol: "https",
           hostname: "**.graphassets.com",
+        },
+        {
+          protocol: "https",
+          hostname: "images.unsplash.com",
+        },
+        {
+          protocol: "https",
+          hostname: "example.com",
         }
       ],
     },
