@@ -1,0 +1,407 @@
+import { ApiClient } from './api-client';
+
+// Initialize API client
+const apiClient = new ApiClient();
+
+// Cache for article conversion with WeakMap for better memory management
+const articleConversionCache = new WeakMap<Record<string, unknown>, unknown>();
+
+// TTL Cache for API responses
+interface CacheEntry<T> {
+  data: T;
+  timestamp: number;
+  ttl: number;
+}
+
+class TTLCache<T> {
+  private cache = new Map<string, CacheEntry<T>>();
+  private defaultTTL = 300000; // 5 minutes
+
+  set(key: string, data: T, ttl = this.defaultTTL): void {
+    this.cache.set(key, {
+      data,
+      timestamp: Date.now(),
+      ttl
+    });
+  }
+
+  get(key: string): T | null {
+    const entry = this.cache.get(key);
+    if (!entry) return null;
+
+    if (Date.now() - entry.timestamp > entry.ttl) {
+      this.cache.delete(key);
+      return null;
+    }
+
+    return entry.data;
+  }
+
+  clear(): void {
+    this.cache.clear();
+  }
+}
+
+// Global cache instances
+const responseCache = new TTLCache<unknown>();
+
+// Enhanced caching wrapper for API calls
+async function cachedApiCall<T>(
+  key: string,
+  apiCall: () => Promise<T>,
+  ttl = 300000
+): Promise<T> {
+  const cached = responseCache.get(key);
+  if (cached) {
+    return cached as T;
+  }
+
+  const result = await apiCall();
+  responseCache.set(key, result, ttl);
+  return result;
+}
+
+// Optimized article conversion with memoization
+function convertArticleToLegacyFormat(article: Record<string, unknown>) {
+  // Check cache first
+  const cached = articleConversionCache.get(article);
+  if (cached) {
+    return cached;
+  }
+
+  const converted = {
+    id: article.id,
+    title: article.title,
+    slug: article.slug,
+    excerpt: article.excerpt,
+    content: article.content,
+    published_at: article.published_at,
+    updated_at: article.updated_at,
+    featured_image: article.featured_image,
+    meta_title: article.meta_title,
+    meta_description: article.meta_description,
+    status: article.status,
+    author: article.author || { name: 'Unknown', slug: 'unknown' },
+    category: article.category || { name: 'Uncategorized', slug: 'uncategorized' },
+    tags: article.tags || [],
+    reading_time: article.reading_time || 5,
+    view_count: article.view_count || 0
+  };
+
+  // Cache the result
+  articleConversionCache.set(article, converted);
+  return converted;
+}
+
+// Batch processing utility
+async function batchProcess<T, R>(
+  items: T[],
+  processor: (item: T) => Promise<R>,
+  batchSize = 5
+): Promise<R[]> {
+  const results: R[] = [];
+  
+  for (let i = 0; i < items.length; i += batchSize) {
+    const batch = items.slice(i, i + batchSize);
+    const batchResults = await Promise.all(
+      batch.map(item => processor(item))
+    );
+    results.push(...batchResults);
+  }
+  
+  return results;
+}
+
+// Enhanced API functions with caching and optimization
+export async function getArticles(params?: { 
+  page?: number; 
+  per_page?: number; 
+  category?: string; 
+  author?: string; 
+  status?: string;
+}) {
+  const cacheKey = `articles_${JSON.stringify(params || {})}`;
+  
+  return cachedApiCall(cacheKey, async () => {
+    const response = await apiClient.getArticles(params);
+    
+    if (response.articles) {
+      response.articles = response.articles.map((article: Record<string, unknown>) => 
+        convertArticleToLegacyFormat(article)
+      );
+    }
+    
+    return response;
+  });
+}
+
+export async function getArticleBySlug(slug: string) {
+  const cacheKey = `article_${slug}`;
+  
+  return cachedApiCall(cacheKey, async () => {
+    const response = await apiClient.getArticleBySlug(slug);
+    return convertArticleToLegacyFormat(response);
+  });
+}
+
+export async function getCategories() {
+  return cachedApiCall('categories', () => apiClient.getCategories());
+}
+
+export async function getCategoryBySlug(slug: string) {
+  const cacheKey = `category_${slug}`;
+  return cachedApiCall(cacheKey, () => apiClient.getCategoryBySlug(slug));
+}
+
+export async function getAuthors() {
+  return cachedApiCall('authors', () => apiClient.getAuthors());
+}
+
+export async function getAuthorBySlug(slug: string) {
+  const cacheKey = `author_${slug}`;
+  return cachedApiCall(cacheKey, () => apiClient.getAuthorBySlug(slug));
+}
+
+export async function getQuizzes(params?: { page?: number; per_page?: number }) {
+  const cacheKey = `quizzes_${JSON.stringify(params || {})}`;
+  return cachedApiCall(cacheKey, () => apiClient.getQuizzes(params));
+}
+
+export async function getQuizById(id: number) {
+  const cacheKey = `quiz_${id}`;
+  return cachedApiCall(cacheKey, () => apiClient.getQuizById(id));
+}
+
+export async function getPages(params?: { page?: number; per_page?: number; status?: string }) {
+  const cacheKey = `pages_${JSON.stringify(params || {})}`;
+  return cachedApiCall(cacheKey, () => apiClient.getPages(params));
+}
+
+export async function getPageBySlug(slug: string) {
+  const cacheKey = `page_${slug}`;
+  return cachedApiCall(cacheKey, () => apiClient.getPageBySlug(slug));
+}
+
+export async function getMenuItems(location?: string) {
+  const cacheKey = `menu_${location || 'all'}`;
+  return cachedApiCall(cacheKey, () => apiClient.getMenuItems(location));
+}
+
+export async function getStocks() {
+  return cachedApiCall('stocks', () => apiClient.getStocks(), 60000); // 1 minute TTL for stocks
+}
+
+export async function getStockBySymbol(symbol: string) {
+  const cacheKey = `stock_${symbol}`;
+  return cachedApiCall(cacheKey, () => apiClient.getStockBySymbol(symbol), 60000);
+}
+
+export async function getSettings() {
+  return cachedApiCall('settings', () => apiClient.getSettings(), 600000); // 10 minutes TTL for settings
+}
+
+export async function getSetting(key: string) {
+  const cacheKey = `setting_${key}`;
+  return cachedApiCall(cacheKey, () => apiClient.getSetting(key), 600000);
+}
+
+// Parallel data fetching for homepage
+export async function getHomepageData() {
+  const cacheKey = 'homepage_data';
+  
+  return cachedApiCall(cacheKey, async () => {
+    const [
+      articlesResponse,
+      categoriesResponse,
+      menuResponse,
+      settingsResponse
+    ] = await Promise.all([
+      getArticles({ page: 1, per_page: 10 }),
+      getCategories(),
+      getMenuItems('header'),
+      getSettings()
+    ]);
+
+    return {
+      articles: articlesResponse,
+      categories: categoriesResponse,
+      menu: menuResponse,
+      settings: settingsResponse
+    };
+  }, 180000); // 3 minutes TTL for homepage data
+}
+
+// CRUD operations (non-cached for data integrity)
+export async function createArticle(data: Record<string, unknown>) {
+  const result = await apiClient.createArticle(data);
+  responseCache.clear(); // Clear cache after mutations
+  return result;
+}
+
+export async function updateArticle(id: number, data: Record<string, unknown>) {
+  const result = await apiClient.updateArticle(id, data);
+  responseCache.clear(); // Clear cache after mutations
+  return result;
+}
+
+export async function deleteArticle(id: number) {
+  const result = await apiClient.deleteArticle(id);
+  responseCache.clear(); // Clear cache after mutations
+  return result;
+}
+
+export async function createCategory(data: Record<string, unknown>) {
+  const result = await apiClient.createCategory(data);
+  responseCache.clear();
+  return result;
+}
+
+export async function updateCategory(id: number, data: Record<string, unknown>) {
+  const result = await apiClient.updateCategory(id, data);
+  responseCache.clear();
+  return result;
+}
+
+export async function deleteCategory(id: number) {
+  const result = await apiClient.deleteCategory(id);
+  responseCache.clear();
+  return result;
+}
+
+export async function createAuthor(data: Record<string, unknown>) {
+  const result = await apiClient.createAuthor(data);
+  responseCache.clear();
+  return result;
+}
+
+export async function updateAuthor(id: number, data: Record<string, unknown>) {
+  const result = await apiClient.updateAuthor(id, data);
+  responseCache.clear();
+  return result;
+}
+
+export async function deleteAuthor(id: number) {
+  const result = await apiClient.deleteAuthor(id);
+  responseCache.clear();
+  return result;
+}
+
+export async function createQuiz(data: Record<string, unknown>) {
+  const result = await apiClient.createQuiz(data);
+  responseCache.clear();
+  return result;
+}
+
+export async function updateQuiz(id: number, data: Record<string, unknown>) {
+  const result = await apiClient.updateQuiz(id, data);
+  responseCache.clear();
+  return result;
+}
+
+export async function deleteQuiz(id: number) {
+  const result = await apiClient.deleteQuiz(id);
+  responseCache.clear();
+  return result;
+}
+
+export async function createPage(data: Record<string, unknown>) {
+  const result = await apiClient.createPage(data);
+  responseCache.clear();
+  return result;
+}
+
+export async function updatePage(id: number, data: Record<string, unknown>) {
+  const result = await apiClient.updatePage(id, data);
+  responseCache.clear();
+  return result;
+}
+
+export async function deletePage(id: number) {
+  const result = await apiClient.deletePage(id);
+  responseCache.clear();
+  return result;
+}
+
+export async function createMenuItem(data: Record<string, unknown>) {
+  const result = await apiClient.createMenuItem(data);
+  responseCache.clear();
+  return result;
+}
+
+export async function updateMenuItem(id: number, data: Record<string, unknown>) {
+  const result = await apiClient.updateMenuItem(id, data);
+  responseCache.clear();
+  return result;
+}
+
+export async function deleteMenuItem(id: number) {
+  const result = await apiClient.deleteMenuItem(id);
+  responseCache.clear();
+  return result;
+}
+
+export async function createStock(data: Record<string, unknown>) {
+  const result = await apiClient.createStock(data);
+  responseCache.clear();
+  return result;
+}
+
+export async function updateStock(id: number, data: Record<string, unknown>) {
+  const result = await apiClient.updateStock(id, data);
+  responseCache.clear();
+  return result;
+}
+
+export async function deleteStock(id: number) {
+  const result = await apiClient.deleteStock(id);
+  responseCache.clear();
+  return result;
+}
+
+export async function updateSetting(key: string, value: unknown) {
+  const result = await apiClient.updateSetting(key, value);
+  responseCache.clear();
+  return result;
+}
+
+export async function deleteSetting(key: string) {
+  const result = await apiClient.deleteSetting(key);
+  responseCache.clear();
+  return result;
+}
+
+// Auth functions (no caching for security)
+export async function login(email: string, password: string) {
+  return apiClient.login(email, password);
+}
+
+export async function register(data: Record<string, unknown>) {
+  return apiClient.register(data);
+}
+
+export async function refreshToken() {
+  return apiClient.refreshToken();
+}
+
+export async function logout() {
+  return apiClient.logout();
+}
+
+// Utility functions
+export function clearCache() {
+  responseCache.clear();
+}
+
+export function warmCache() {
+  // Pre-load commonly accessed data
+  Promise.all([
+    getCategories(),
+    getAuthors(),
+    getMenuItems('header'),
+    getMenuItems('footer'),
+    getSettings()
+  ]).catch(console.error);
+}
+
+// Export for legacy compatibility and direct access
+export { apiClient, batchProcess };
