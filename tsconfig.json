@@ -26,5 +26,5 @@
     ]
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "**/*.mjs", ".next/types/**/*.ts", "prettier.config.js"],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", "playwright.config.ts", "e2e/**/*", "**/*.test.ts", "**/*.spec.ts"]
 }

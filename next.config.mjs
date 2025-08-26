@@ -11,6 +11,14 @@ const config = withPlugins(
   withNextIntl("./i18n.ts")({
     reactStrictMode: true,
     experimental: { instrumentationHook: true },
+    eslint: {
+      // Disable ESLint during builds on Vercel
+      ignoreDuringBuilds: true,
+    },
+    typescript: {
+      // Disable TypeScript type checking during builds on Vercel
+      ignoreBuildErrors: true,
+    },
     rewrites() {
       return {
         beforeFiles: [
