@@ -12,6 +12,7 @@ import { getHomepage, getHomepageMetadata } from "@/lib/client"
 import { getMetadataObj } from "@/utils/getMetadataObj"
 
 export const dynamicParams = false
+export const dynamic = 'force-dynamic' // Disable static generation temporarily
 
 export function generateStaticParams() {
   return i18n.locales.map((lang) => ({ lang }))
@@ -24,28 +25,34 @@ export async function generateMetadata({ params }: { params: { lang: Locale } })
 
 export default async function Web({ params }: { params: { lang: Locale } }) {
   unstable_setRequestLocale(params.lang)
-  const homepage = await getHomepage(params.lang)
-  await setTranslations(params.lang)
+  
+  try {
+    const homepage = await getHomepage(params.lang)
+    await setTranslations(params.lang)
 
-  return (
-    <>
-      {homepage.marketStock?.data && <StockDisplay quotes={homepage.marketStock?.data} />}
+    return (
+      <>
+        {homepage.marketStock?.data && <StockDisplay quotes={homepage.marketStock?.data} />}
 
-      {homepage.heroArticle && (
-          <HeroArticleCard
-            article={articleToCardProps(homepage.heroArticle)}
-            asLink
-            additionalLink="https://blazity.com/"
+        {homepage.heroArticle && (
+            <HeroArticleCard
+              article={articleToCardProps(homepage.heroArticle)}
+              asLink
+              additionalLink="https://blazity.com/"
+            />
+        )}
+        <TrendingArticles title="Trending articles" />
+        {homepage.featuredArticles && Array.isArray(homepage.featuredArticles) && homepage.featuredArticles.length > 0 && (
+          <HighlightedArticles
+            title="Our picks"
+            articles={homepage.featuredArticles}
           />
-      )}
-      <TrendingArticles title="Trending articles" />
-      {homepage.featuredArticles && homepage.featuredArticles.length > 0 && (
-        <HighlightedArticles
-          title="Our picks"
-          articles={homepage.featuredArticles}
-        />
-      )}
-      <RecentArticles title="Recent articles" />
-    </>
-  )
+        )}
+        <RecentArticles title="Recent articles" />
+      </>
+    )
+  } catch (error) {
+    console.error('Error in homepage:', error)
+    return <div>Loading...</div>
+  }
 }

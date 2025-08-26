@@ -11,26 +11,39 @@ type RecentArticlesProps = {
 
 export async function RecentArticles({ title }: RecentArticlesProps) {
   const locale = useLocale()
-  const initialArticles = await getRecentArticlesWithMain({ locale, first: 3, skip: 1 })
-  const mainArticle = initialArticles.mainArticle[0]
+  
+  try {
+    const initialArticles = await getRecentArticlesWithMain({ locale, first: 3, skip: 1 })
+    
+    // Defensive checks
+    if (!initialArticles || !initialArticles.mainArticle || !Array.isArray(initialArticles.mainArticle) || initialArticles.mainArticle.length === 0) {
+      return null
+    }
+    
+    const mainArticle = initialArticles.mainArticle[0] as any
+    const recentArticles = initialArticles.recentArticles || []
 
-  return (
-    <section className="w-full">
-      <h2 className="py-12 pb-8 text-3xl font-bold">{title}</h2>
-      <div className="pb-5">
-        <ArticleCard
-          article={articleToCardProps(mainArticle)}
-          orientation="horizontal"
-          imageClassName="lg:w-1/2"
-          tagsPosition="over"
+    return (
+      <section className="w-full">
+        <h2 className="py-12 pb-8 text-3xl font-bold">{title}</h2>
+        <div className="pb-5">
+          <ArticleCard
+            article={articleToCardProps(mainArticle)}
+            orientation="horizontal"
+            imageClassName="lg:w-1/2"
+            tagsPosition="over"
+          />
+        </div>
+        <RecentArticlesInfiniteDynamic 
+          initialArticles={{ 
+            articles: recentArticles, 
+            count: recentArticles.length 
+          }} 
         />
-      </div>
-      <RecentArticlesInfiniteDynamic 
-        initialArticles={{ 
-          articles: initialArticles.recentArticles, 
-          count: initialArticles.recentArticles.length 
-        }} 
-      />
-    </section>
-  )
+      </section>
+    )
+  } catch (error) {
+    console.error('Error in RecentArticles:', error)
+    return null
+  }
 }
