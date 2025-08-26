@@ -67,7 +67,7 @@ export async function Footer({ footer }: FooterProps) {
           <div className="w-fit lg:w-auto">
             <DynamicLangSelect />
           </div>
-          {footer?.additionalLogo && (
+          {footer?.additionalLogo && 'url' in footer.additionalLogo && (
             <Link
               hrefLang={locale}
               target="_blank"
@@ -75,7 +75,7 @@ export async function Footer({ footer }: FooterProps) {
               className="flex max-h-[100px] w-[100px] lg:justify-end"
             >
               <Image
-                src={footer?.additionalLogo.url}
+                src={footer.additionalLogo.url}
                 width={300}
                 height={300}
                 alt="Blazity logo"

@@ -72,6 +72,12 @@ pip install gunicorn
 nano .env
 # Add your production environment variables
 
+# IMPORTANT: Make sure virtual environment is activated
+source venv/bin/activate
+
+# Verify Flask is installed
+python -c "import flask; print('Flask version:', flask.__version__)"
+
 # Initialize database
 export $(cat .env | xargs)
 python -c "from app import create_app, db; app=create_app(); app.app_context().push(); db.create_all()"
@@ -218,6 +224,25 @@ openssl s_client -connect yourdomain.com:443 -servername yourdomain.com
 ## Common Issues and Solutions
 
 ### Backend Issues
+
+**Issue: ModuleNotFoundError: No module named 'flask'**
+```bash
+# This means virtual environment is not activated
+# Solution:
+cd /home/newsapp/times-profit/backend
+source venv/bin/activate
+
+# Verify activation (you should see (venv) in your prompt)
+which python
+python -c "import flask; print('Flask is available')"
+
+# If Flask is still not found, reinstall dependencies
+pip install -r requirements.txt
+
+# Then retry the database initialization
+export $(cat .env | xargs)
+python -c "from app import create_app, db; app=create_app(); app.app_context().push(); db.create_all()"
+```
 
 **Issue: Gunicorn won't start**
 ```bash

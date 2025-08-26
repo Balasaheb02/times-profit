@@ -37,11 +37,11 @@ class ApiClient {
     const response = await fetch(url, config);
     
     if (!response.ok) {
-      const error = await response.json().catch(() => ({ error: 'Unknown error' }));
+      const error = await response.json().catch(() => ({ error: 'Unknown error' })) as { error?: string };
       throw new Error(error.error || `HTTP ${response.status}`);
     }
 
-    return response.json();
+    return response.json() as Promise<T>;
   }
 
   setToken(token: string) {
@@ -279,7 +279,7 @@ class ApiClient {
     return this.request<{
       pages: Page[];
       total: number;
-      pages: number;
+      page_count: number;
       current_page: number;
     }>(`/pages${query ? `?${query}` : ''}`);
   }

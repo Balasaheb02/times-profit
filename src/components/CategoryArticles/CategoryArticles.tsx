@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation"
 import { useLocale } from "@/i18n/i18n"
 import { getTranslations } from "@/i18n/setTranslations"
-import { listArticlesByCategory } from "@/lib/backend-client"
+import { listArticlesByCategorySlug } from "@/lib/client"
 import { CategoryArticlesInfiniteDynamic } from "./CategoryArticlesInfiniteDynamic"
 
 export const CATEGORY_ARTICLES_PER_PAGE = 4
@@ -13,9 +13,10 @@ type CategoryArticlesProps = {
 export async function CategoryArticles({ category }: CategoryArticlesProps) {
   const locale = useLocale()
   const translations = getTranslations()
-  const articles = await listArticlesByCategory({
+  const articles = await listArticlesByCategorySlug({
     locale: locale,
     categorySlug: category,
+    skip: 0,
     first: CATEGORY_ARTICLES_PER_PAGE,
   })
 
@@ -28,7 +29,10 @@ export async function CategoryArticles({ category }: CategoryArticlesProps) {
         <p className="text-xl font-bold">&quot;{category}&quot;</p>
       </div>
       <div className="mx-auto w-full">
-        <CategoryArticlesInfiniteDynamic category={category} initialArticles={articles} />
+        <CategoryArticlesInfiniteDynamic 
+          category={category} 
+          initialArticles={{ articles: articles.articles, count: articles.count }} 
+        />
       </div>
     </section>
   )

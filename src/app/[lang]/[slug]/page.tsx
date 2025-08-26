@@ -2,8 +2,8 @@ import { Metadata } from "next"
 import { notFound } from "next/navigation"
 import { unstable_setRequestLocale } from "next-intl/server"
 import { hygraphLocaleToStandardNotation, i18n, Locale } from "@/i18n/i18n"
-import { getPageBySlug, getPageMetadataBySlug, listPagesForSitemap } from "@/lib/backend-client"
-import { getMatadataObj } from "@/utils/getMetadataObj"
+import { getPageBySlug, getPageMetadataBySlug, listPagesForSitemap } from "@/lib/client"
+import { getMetadataObj } from "@/utils/getMetadataObj"
 
 type CustomPageProps = {
   params: { slug: string; lang: Locale }
@@ -28,17 +28,17 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params: { slug, lang } }: CustomPageProps): Promise<Metadata | null> {
-  const metaData = await getPageMetadataBySlug(slug, lang)
+  const metaData = await getPageMetadataBySlug({ locale: lang, slug })
   if (!metaData) return null
 
   const { seoComponent } = metaData
 
-  return getMatadataObj({ title: seoComponent?.title, description: seoComponent?.description?.text })
+  return getMetadataObj({ title: seoComponent?.title, description: seoComponent?.description?.text })
 }
 
 export default async function Web({ params: { slug, lang } }: CustomPageProps) {
   unstable_setRequestLocale(lang)
-  const page = await getPageBySlug(slug, lang)
+  const page = await getPageBySlug({ locale: lang, slug })
 
   if (!page) notFound()
   return (

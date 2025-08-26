@@ -8,8 +8,8 @@ import { StockDisplay } from "@/components/StockDisplay/StockDisplay"
 import { TrendingArticles } from "@/components/TrendingArticles/TrendingArticles"
 import { i18n, Locale } from "@/i18n/i18n"
 import { setTranslations } from "@/i18n/setTranslations"
-import { getHomepage, getHomepageMetadata } from "@/lib/backend-client"
-import { getMatadataObj } from "@/utils/getMetadataObj"
+import { getHomepage, getHomepageMetadata } from "@/lib/client"
+import { getMetadataObj } from "@/utils/getMetadataObj"
 
 export const dynamicParams = false
 
@@ -19,7 +19,7 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: { params: { lang: Locale } }): Promise<Metadata | null> {
   const { seoComponent } = await getHomepageMetadata(params.lang)
-  return getMatadataObj({ title: seoComponent?.title, description: seoComponent?.description?.text })
+  return getMetadataObj({ title: seoComponent?.title, description: seoComponent?.description?.text })
 }
 
 export default async function Web({ params }: { params: { lang: Locale } }) {

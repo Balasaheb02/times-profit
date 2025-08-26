@@ -29,30 +29,24 @@ export default async function generateRssFeed(locale: Locale) {
   const feed = new Feed(feedOptions)
 
   articles.forEach((article: {
-    id: string;
-    title: string;
-    slug: string;
-    publishedAt: string;
-    updatedAt: string;
-    locale: string;
-    tags: { tag: string; }[];
-    image: { id: string; data: { url: string; }; description: { text: string; }; title: string; } | null;
-    author: { name: string; };
-    content: unknown;
-    excerpt: string | undefined;
+    title?: string;
+    slug?: string;
+    updatedAt?: string;
+    author?: { name?: string };
+    image?: { data?: { url?: string } };
   }) => {
     const date = article?.updatedAt ? new Date(article.updatedAt) : new Date()
     feed.addItem({
       title: article?.title || 'Untitled',
       id: `${SITE_URL}/${locale}/article/${article?.slug}`,
       link: `${SITE_URL}/${locale}/article/${article?.slug}`,
-      description: article?.excerpt || "test",
+      description: "test",
       copyright: `All rights reserved ${new Date().getFullYear()}`,
-      date: date,
+      date,
       author: [{ name: article?.author?.name || 'Anonymous' }],
       image: article?.image?.data?.url,
     })
   })
 
-  return feed.rss2()
+  return feed
 }

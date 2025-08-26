@@ -4,9 +4,9 @@ import { useQuery } from "@tanstack/react-query"
 import { ArrowRight, Check, XCircle } from "lucide-react"
 import { useState } from "react"
 import { useLocale } from "@/i18n/i18n"
-import { getQuizQuestionsById } from "@/lib/backend-client"
+import { getQuizQuestionsById } from "@/lib/client"
 import { cn } from "@/utils/cn"
-import { RichText } from "../RichText/RichText"
+// import { RichText } from "../RichText/RichText" // Not needed since we're using text instead
 import { Skeleton } from "../ui/Skeleton/Skeleton"
 
 type QuizAnswer = {
@@ -38,12 +38,12 @@ export function QuizLogic({ id }: QuizProps) {
     () => getQuizQuestionsById({ locale, id: id, skip: 0 }),
     {
       onSuccess: (data) => {
-        setQuestions(data as QuizQuestion[])
+        setQuestions((data as unknown) as QuizQuestion[])
       },
     }
   )
 
-  const [questions, setQuestions] = useState<ExtendedQuizQuestion[]>((data as QuizQuestion[]) ?? [])
+  const [questions, setQuestions] = useState<ExtendedQuizQuestion[]>(((data as unknown) as QuizQuestion[]) ?? [])
 
   const currentQuestion = questions?.[currentQuestionIndex]
 
@@ -75,17 +75,17 @@ export function QuizLogic({ id }: QuizProps) {
   }
 
   const handleClickQuestion = (id: string) => {
-    const remainingValidAnswers = currentQuestion.answer.filter((answer) => answer.isValid && !answer.status)
+    const remainingValidAnswers = currentQuestion.answer.filter((answer) => answer.isCorrect && !answer.status)
     const clickedAnswer = currentQuestion.answer.find((answer) => answer.id === id)
     if (currentQuestion.isAnswered || !clickedAnswer) return
     pickAnswer(id)
-    if (remainingValidAnswers.length === 1 && clickedAnswer.isValid) {
+    if (remainingValidAnswers.length === 1 && clickedAnswer.isCorrect) {
       endQuestion()
     }
   }
 
   const isFirstQuestion = currentQuestionIndex === 0
-  const isLastQuestion = currentQuestionIndex + 1 === data?.length
+  const isLastQuestion = currentQuestionIndex + 1 === data?.questions?.length
 
   const nextQuestion = () => {
     if (isLastQuestion) return
@@ -103,9 +103,9 @@ export function QuizLogic({ id }: QuizProps) {
     <div className="w-full flex-col items-center justify-center rounded-xl border-[1px] p-5">
       <div className="w-full items-center justify-center">
         <div className="mx-1 flex items-center justify-between pb-8">
-          {currentQuestion?.content?.raw && <RichText raw={currentQuestion?.content?.raw} />}
+          {currentQuestion?.question && <p className="text-lg font-medium">{currentQuestion.question}</p>}
           <p className="font-semibold text-custom-gray-300">
-            {currentQuestionIndex + 1}/{data?.length}
+            {currentQuestionIndex + 1}/{data?.questions?.length}
           </p>
         </div>
         <ul className="flex flex-col gap-y-3">
@@ -114,15 +114,15 @@ export function QuizLogic({ id }: QuizProps) {
               onClick={() => handleClickQuestion(answer.id)}
               key={index}
               className={cn(
-                answer.status && answer.isValid && "bg-black",
-                answer.status && !answer.isValid && "bg-custom-gray-200",
+                answer.status && answer.isCorrect && "bg-black",
+                answer.status && !answer.isCorrect && "bg-custom-gray-200",
                 !answer.status && !currentQuestion.isAnswered && "cursor-pointer hover:bg-slate-50",
                 "flex items-center justify-between rounded-xl border-[1px] px-4 py-2"
               )}
             >
-              <RichText raw={answer?.content?.raw} pClassName={cn(answer.status && answer.isValid && "text-white")} />
-              {answer.status && answer.isValid && <Check stroke="white" />}
-              {answer.status && !answer.isValid && <XCircle stroke="#D9D9D9" />}
+              <p className={cn(answer.status && answer.isCorrect && "text-white")}>{answer.text}</p>
+              {answer.status && answer.isCorrect && <Check stroke="white" />}
+              {answer.status && !answer.isCorrect && <XCircle stroke="#D9D9D9" />}
             </li>
           ))}
         </ul>

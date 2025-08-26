@@ -1,11 +1,11 @@
 import pickBy from "lodash/pickBy"
 import { cache } from "react"
-import { notFound } from "next/navigation"
-import { getGlobalTranslations } from "@/lib/backend-client"
+// import { notFound } from "next/navigation" // Not used
+import { getGlobalTranslations } from "@/lib/client"
 import { Locale } from "./i18n"
 
-type NonNullableProperty<T> = { [P in keyof T]: NonNullable<T[P]> }
-type RequiredNonNullable<T> = Required<NonNullableProperty<T>>
+// type NonNullableProperty<T> = { [P in keyof T]: NonNullable<T[P]> }
+// type RequiredNonNullable<T> = Required<NonNullableProperty<T>>
 
 export type GlobalTranslations = any
 

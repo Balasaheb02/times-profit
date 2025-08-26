@@ -1,5 +1,5 @@
 import { useLocale } from "@/i18n/i18n"
-import { getRecentArticlesByCategory } from "@/lib/backend-client"
+import { getRecentArticlesByCategory } from "@/lib/client"
 import { ArticleCard, articleToCardProps } from "../ArticleCard/ArticleCard"
 
 export const RECENT_ARTICLES_PER_PAGE = 4
@@ -11,7 +11,7 @@ type RecentArticlesProps = {
 
 export async function HighlightedCategoryArticles({ title, categoryId }: RecentArticlesProps) {
   const locale = useLocale()
-  const { articles } = await getRecentArticlesByCategory({ locale, first: RECENT_ARTICLES_PER_PAGE, categoryId })
+  const articles = await getRecentArticlesByCategory({ locale, categorySlug: categoryId, skip: 0, first: RECENT_ARTICLES_PER_PAGE })
 
   return (
     <section className="w-full">

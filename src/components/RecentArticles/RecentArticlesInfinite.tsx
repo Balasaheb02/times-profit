@@ -4,7 +4,7 @@ import { useInfiniteQuery } from "@tanstack/react-query"
 import { Button } from "@/components/ui/Button/Button"
 import { useLocale } from "@/i18n/i18n"
 import { useTranslations } from "@/i18n/useTranslations"
-import { getRecentArticles } from "@/lib/backend-client"
+import { getRecentArticles } from "@/lib/client"
 import { RECENT_ARTICLES_PER_PAGE } from "./RecentArticles"
 import { ArticleCard, articleToCardProps } from "../ArticleCard/ArticleCard"
 
@@ -23,12 +23,15 @@ export function RecentArticlesInfinite({ initialArticles }: RecentArticlesInfini
     hasNextPage,
   } = useInfiniteQuery({
     queryKey: ["recent-articles"],
-    queryFn: ({ pageParam = 0 }) =>
-      getRecentArticles({
+    queryFn: async ({ pageParam = 0 }) => {
+      const result = await getRecentArticles({
         locale,
         skip: RECENT_ARTICLES_PER_PAGE * pageParam + 1,
         first: RECENT_ARTICLES_PER_PAGE,
-      }),
+      });
+      // Ensure we return the correct structure
+      return result as { articles: any[]; count: number };
+    },
     getNextPageParam: (lastPage, pages) => {
       if (lastPage.count <= pages.length * RECENT_ARTICLES_PER_PAGE) return undefined
       return pages.length

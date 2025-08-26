@@ -1,5 +1,5 @@
 import { useLocale } from "@/i18n/i18n"
-import { getRecentArticlesWithMain } from "@/lib/backend-client"
+import { getRecentArticlesWithMain } from "@/lib/client"
 import { RecentArticlesInfiniteDynamic } from "./RecentArticlesInfiniteDynamic"
 import { ArticleCard, articleToCardProps } from "../ArticleCard/ArticleCard"
 
@@ -25,7 +25,12 @@ export async function RecentArticles({ title }: RecentArticlesProps) {
           tagsPosition="over"
         />
       </div>
-      <RecentArticlesInfiniteDynamic initialArticles={initialArticles} />
+      <RecentArticlesInfiniteDynamic 
+        initialArticles={{ 
+          articles: initialArticles.recentArticles, 
+          count: initialArticles.recentArticles.length 
+        }} 
+      />
     </section>
   )
 }

@@ -101,27 +101,6 @@ const dummyCategories: any[] = [
 ]
 
 const dummyNavigation = {
-  logo: {
-    data: { url: "/favicon.ico" },
-    title: "Times Profit",
-    url: "/favicon.ico"
-  },
-  elements: [
-    {
-      element: {
-        __typename: "Category",
-        title: "Technology",
-        slug: "technology"
-      }
-    },
-    {
-      element: {
-        __typename: "Category", 
-        title: "News",
-        slug: "news"
-      }
-    }
-  ],
   categories: dummyCategories,
   pages: dummyPages
 }
@@ -131,54 +110,11 @@ const dummyHomepage = {
     title: "Times Profit - Latest News",
     description: { text: "Stay updated with the latest news and insights." }
   },
-  marketStock: {
-    data: []
-  },
-  heroArticle: dummyArticles[0],
-  featuredArticles: dummyArticles
-}
-
-const dummyFooter = {
-  elements: [],
-  copyright: "© 2025 Times Profit",
-  contactSection: {
-    street: "123 News Street",
-    city: "News City",
-    country: "Country",
-    postCode: "12345"
-  },
-  companyName: "Times Profit",
-  links: [
-    { 
-      title: "Privacy Policy", 
-      url: "/privacy",
-      element: {
-        __typename: "Page",
-        slug: "privacy",
-        title: "Privacy Policy"
-      }
-    },
-    { 
-      title: "Terms of Service", 
-      url: "/terms",
-      element: {
-        __typename: "Page",
-        slug: "terms",
-        title: "Terms of Service"
-      }
-    }
-  ],
-  instagramLink: "https://instagram.com",
-  facebookLink: "https://facebook.com", 
-  twitterLink: "https://twitter.com",
-  youtubeLink: "https://youtube.com",
-  logo: { url: "/favicon.ico" },
-  additionalLogo: { url: "/favicon.ico" },
-  ownershipAndCredits: "All rights reserved"
+  marketStock: []
 }
 
 const dummyQuiz = {
-  questions: [] as any[]
+  questions: []
 }
 
 const dummyTranslations = {
@@ -197,10 +133,7 @@ export async function getHomepageMetadata(_locale: Locale) {
 }
 
 export async function getNavigation(_locale: Locale) {
-  return {
-    navigation: dummyNavigation,
-    footer: dummyFooter
-  }
+  return dummyNavigation
 }
 
 export async function getArticlesQuantity(_locale: Locale) {
@@ -231,10 +164,8 @@ export async function getRecentArticles(variables: { locale: Locale; skip?: numb
 
 export async function getRecentArticlesWithMain(variables: { locale: Locale; skip?: number; first?: number }) {
   const { skip = 0, first = 50 } = variables
-  const articles = dummyArticles.slice(skip, skip + first)
   return { 
-    recentArticles: articles, // Component expects recentArticles property
-    mainArticle: articles.length > 0 ? [articles[0]] : [], // First article as main article
+    articles: dummyArticles.slice(skip, skip + first), 
     count: dummyArticles.length 
   }
 }
@@ -272,7 +203,7 @@ export async function listArticlesByCategory(variables: {
 }) {
   const { skip = 0, first = 50, categoryId } = variables
   const filteredArticles = dummyArticles.filter(article => 
-    article.categories.some((cat: { slug: string }) => cat.slug === categoryId)
+    article.categories.some((cat: any) => cat.slug === categoryId)
   )
   return { 
     articles: filteredArticles.slice(skip, skip + first), 
@@ -288,7 +219,7 @@ export async function listArticlesByCategorySlug(variables: {
 }) {
   const { skip = 0, first = 50, categorySlug } = variables
   const filteredArticles = dummyArticles.filter(article => 
-    article.categories.some((cat: { slug: string }) => cat.slug === categorySlug)
+    article.categories.some((cat: any) => cat.slug === categorySlug)
   )
   return { 
     articles: filteredArticles.slice(skip, skip + first), 
@@ -302,21 +233,4 @@ export async function getQuizQuestionsById(_variables: { locale: Locale; id: str
 
 export async function getGlobalTranslations(_variables: { locale: Locale }) {
   return dummyTranslations
-}
-
-export async function getArticleRecommendedArticles(variables: { locale: Locale; id: string }) {
-  // Return some sample recommended articles
-  const article = dummyArticles.find(a => a.id === variables.id)
-  if (article) {
-    return dummyArticles.filter(a => a.id !== variables.id).slice(0, 3)
-  }
-  return []
-}
-
-export async function getRecentArticlesByCategory(variables: { locale: Locale; categorySlug: string; skip?: number; first?: number }) {
-  const { skip = 0, first = 10 } = variables
-  const filteredArticles = dummyArticles.filter(article => 
-    article.categories.some((cat: { slug: string }) => cat.slug === variables.categorySlug)
-  )
-  return filteredArticles.slice(skip, skip + first)
 }

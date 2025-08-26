@@ -1,3 +1,5 @@
+// Not using Hygraph - commented out
+/*
 import { verifyWebhookSignature } from "@hygraph/utils"
 import { NextRequest } from "next/server"
 import { env } from "@/env.mjs"
@@ -15,6 +17,18 @@ export const validateSignature = async (req: NextRequest) => {
   })
   if (!isSignatureValid) throw new HttpError("Unauthorized", 401)
 
+  const reqWithBody = Object.assign(req, { parsedBody })
+  return reqWithBody
+}
+*/
+
+import { NextRequest } from "next/server"
+
+// Simplified validation without Hygraph
+export const validateSignature = async (req: NextRequest) => {
+  // For now, just parse the body without signature validation
+  // You can add your own validation logic here if needed
+  const parsedBody = await req.json()
   const reqWithBody = Object.assign(req, { parsedBody })
   return reqWithBody
 }

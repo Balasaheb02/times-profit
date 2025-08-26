@@ -3,7 +3,7 @@
 import { useQuery } from "@tanstack/react-query"
 import { useLocale } from "@/i18n/i18n"
 import { useTranslations } from "@/i18n/useTranslations"
-import { getArticleRecommendedArticles } from "@/lib/backend-client"
+import { getArticleRecommendedArticles } from "@/lib/client"
 import { ArticleCard, articleToCardProps } from "../ArticleCard/ArticleCard"
 
 type RecommendedArticlesProps = { id: string }

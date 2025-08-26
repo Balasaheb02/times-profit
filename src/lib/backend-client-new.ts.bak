@@ -1,7 +1,6 @@
-import { ApiClient } from './api-client';
+import { apiClient } from './api-client';
 
-// Initialize API client
-const apiClient = new ApiClient();
+// Use the singleton API client instance
 
 // Cache for article conversion with WeakMap for better memory management
 const articleConversionCache = new WeakMap<Record<string, unknown>, unknown>();

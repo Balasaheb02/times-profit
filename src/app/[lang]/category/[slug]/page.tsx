@@ -3,12 +3,12 @@ import { unstable_setRequestLocale } from "next-intl/server"
 import { CategoryArticles } from "@/components/CategoryArticles/CategoryArticles"
 import { Locale } from "@/i18n/i18n"
 import { setTranslations } from "@/i18n/setTranslations"
-import { getMatadataObj } from "@/utils/getMetadataObj"
+import { getMetadataObj } from "@/utils/getMetadataObj"
 
 type ArticlePageProps = { params: { slug: string; lang: Locale } }
 
 export async function generateMetadata({ params: { slug } }: ArticlePageProps): Promise<Metadata | null> {
-  return getMatadataObj({ title: `Category - ${slug}` })
+  return getMetadataObj({ title: `Category - ${slug}`, description: undefined })
 }
 
 export default async function Web({ params: { slug, lang } }: ArticlePageProps) {

@@ -4,13 +4,15 @@ import { apiClient, Article } from "./api-client";
 // Helper function to convert HTML content to RichText format
 function parseHTMLToRichText(htmlContent: string) {
   // Simple conversion - for a production app, you'd want a proper HTML to RichText parser
+  const cleanText = htmlContent.replace(/<[^>]*>/g, ''); // Strip HTML tags for now
+  
   return {
     children: [
       {
         type: "paragraph",
         children: [
           {
-            text: htmlContent.replace(/<[^>]*>/g, '') // Strip HTML tags for now
+            text: cleanText
           }
         ]
       }
@@ -40,7 +42,8 @@ function convertArticleToLegacyFormat(article: Article) {
       avatar: article.author.avatar_url ? { data: { url: article.author.avatar_url } } : null
     },
     content: {
-      raw: article.content ? parseHTMLToRichText(article.content) : null
+      raw: article.content ? parseHTMLToRichText(article.content) : null,
+      references: [] // Add empty references array for compatibility
     },
     excerpt: article.excerpt
   };
@@ -250,6 +253,7 @@ export async function getNavigation(_locale: Locale) {
       navigation: {
         logo: {
           title: settings.site_title || "Next News",
+          url: '/logo.png', // Add URL for the logo image
           href: `/${_locale}`
         },
         elements: [
@@ -279,13 +283,27 @@ export async function getNavigation(_locale: Locale) {
       navigation: {
         logo: {
           title: "Next News",
+          url: '/logo.png',
           href: `/${_locale}`
         },
         elements: []
       },
       footer: {
-        legalLinks: [],
-        socialLinks: []
+        companyName: 'Next News',
+        contactSection: {
+          street: '123 News Street',
+          city: 'Media City',
+          country: 'NY 10001',
+          postCode: '10001'
+        },
+        logo: { url: '/logo.png', title: 'Next News' },
+        links: [],
+        instagramLink: '',
+        facebookLink: '',
+        twitterLink: '',
+        youtubeLink: '',
+        additionalLogo: null,
+        ownershipAndCredits: 'All rights reserved'
       }
     };
   }
@@ -415,7 +433,7 @@ export async function getMarketData() {
       data: response.stocks.map(stock => ({
         id: stock.id,
         name: stock.symbol,
-        change: `${stock.percent_change || 0}%`,
+        change: stock.percent_change || 0,
         symbol: stock.symbol,
         price: stock.current_price,
         percentChange: stock.percent_change,
@@ -483,7 +501,12 @@ export async function getFooterData(_locale: Locale) {
         instagramLink: settings.social_instagram,
         facebookLink: settings.social_facebook,
         twitterLink: settings.social_twitter,
-        youtubeLink: settings.social_youtube
+        youtubeLink: settings.social_youtube,
+        additionalLogo: settings.additional_logo_url ? {
+          url: settings.additional_logo_url,
+          title: 'Additional Logo'
+        } : null, // Optional additional logo
+        ownershipAndCredits: 'All rights reserved' // Optional ownership text
       }
     };
   } catch (error) {
@@ -502,7 +525,9 @@ export async function getFooterData(_locale: Locale) {
         instagramLink: '',
         facebookLink: '',
         twitterLink: '',
-        youtubeLink: ''
+        youtubeLink: '',
+        additionalLogo: null,
+        ownershipAndCredits: 'All rights reserved'
       }
     };
   }
@@ -546,7 +571,23 @@ export async function getArticleBySlug(variables: { locale: Locale; slug: string
 }
 
 export async function getArticleMetadataBySlug(variables: { locale: Locale; slug: string }) {
-  return getArticleBySlug(variables);
+  try {
+    const article = await apiClient.getArticleBySlug(variables.slug);
+    const convertedArticle = convertArticleToLegacyFormat(article);
+    
+    return {
+      ...convertedArticle,
+      seoComponent: {
+        title: article.title,
+        description: {
+          text: article.excerpt || ''
+        }
+      }
+    };
+  } catch (error) {
+    console.error('Error fetching article metadata by slug:', error);
+    return null;
+  }
 }
 
 // Additional functions for backward compatibility
@@ -600,12 +641,19 @@ export async function listArticlesByCategory(variables: { locale: Locale; catego
   }
 }
 
-export async function listArticlesForSitemap(_locale: Locale, _page = 1) {
+export async function listArticlesForSitemap(variables: { locale: Locale; skip?: number; first?: number }) {
   try {
-    const response = await apiClient.getArticles({ per_page: 100, published: true });
-    return response.articles.map(article => ({
+    const { skip = 0, first = 100 } = variables;
+    const page = Math.floor(skip / first) + 1;
+    const response = await apiClient.getArticles({ 
+      page, 
+      per_page: first, 
+      published: true 
+    });
+    return response.articles.map((article) => ({
       slug: article.slug,
-      updatedAt: article.updated_at
+      updatedAt: article.updated_at,
+      image: article.image_url ? { data: { url: article.image_url } } : null
     }));
   } catch (error) {
     console.error('Error fetching articles for sitemap:', error);

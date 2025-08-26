@@ -1,7 +1,7 @@
 import { getServerSideSitemapIndex } from "next-sitemap"
 import { env } from "@/env.mjs"
 import { i18n } from "@/i18n/i18n"
-import { getArticlesQuantity } from "@/lib/backend-client"
+import { getArticlesQuantity } from "@/lib/client"
 
 const URLS_PER_SITEMAP = 1000
 

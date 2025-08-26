@@ -1,25 +1,26 @@
+import { RichTextContent } from "@graphcms/rich-text-types"
+import { notFound } from "next/navigation"
+import { Metadata } from "next/types"
 import { HeroArticleCard } from "@/components/ArticleCard/HeroArticleCard"
 import { RecommendedArticles } from "@/components/RecommendedArticles/RecommendedArticles"
 import { RichText } from "@/components/RichText/RichText"
 import { ShareOnSocial } from "@/components/ShareOnSocial/ShareOnSocial"
 import { env } from "@/env.mjs"
 import { Locale } from "@/i18n/i18n"
-import { getArticleBySlug, getArticleMetadataBySlug } from "@/lib/backend-client"
-import { getMatadataObj } from "@/utils/getMetadataObj"
-import { notFound } from "next/navigation"
-import { Metadata } from "next/types"
+import { getArticleBySlug, getArticleMetadataBySlug } from "@/lib/client"
+import { getMetadataObj } from "@/utils/getMetadataObj"
 
 type ArticlePageProps = { params: { slug: string; lang: Locale } }
 
 export async function generateMetadata({ params: { slug, lang } }: ArticlePageProps): Promise<Metadata | null> {
   const article = await getArticleMetadataBySlug({ locale: lang, slug })
   if (!article) return null
-  const { seoComponent, image } = article
+  const { seoComponent } = article
 
   const description = seoComponent?.description?.text
   const title = seoComponent?.title
 
-  return getMatadataObj({ description, title, image })
+  return getMetadataObj({ description, title })
 }
 
 export default async function Web({ params: { slug, lang } }: ArticlePageProps) {
@@ -46,9 +47,12 @@ export default async function Web({ params: { slug, lang } }: ArticlePageProps) 
           asLink={false}
         />
         <ShareOnSocial articleUrl={articleUrl} articleTitle={title} />
-        {article.content && (
+        {article.content && article.content.raw && (
           <section className="flex w-full flex-col pt-8">
-            <RichText references={initialQuiz ? [initialQuiz] : []} raw={article.content.raw} />
+            <RichText 
+              references={initialQuiz ? [initialQuiz] : []} 
+              raw={typeof article.content.raw === 'string' ? JSON.parse(article.content.raw) as RichTextContent : article.content.raw as RichTextContent} 
+            />
           </section>
         )}
       </article>

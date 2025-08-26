@@ -4,7 +4,7 @@ import { useInfiniteQuery } from "@tanstack/react-query"
 import { Button } from "@/components/ui/Button/Button"
 import { useLocale } from "@/i18n/i18n"
 import { useTranslations } from "@/i18n/useTranslations"
-import { listArticlesByCategory } from "@/lib/backend-client"
+import { listArticlesByCategorySlug } from "@/lib/client"
 import { CATEGORY_ARTICLES_PER_PAGE } from "./CategoryArticles"
 import { ArticlesGrid } from "../ArticlesGrid/ArticlesGrid"
 
@@ -24,13 +24,16 @@ export function RecentArticlesInfinite({ initialArticles, category }: CategoryAr
     hasNextPage,
   } = useInfiniteQuery({
     queryKey: ["category-articles", category],
-    queryFn: ({ pageParam = 0 }) =>
-      listArticlesByCategory({
+    queryFn: async ({ pageParam = 0 }) => {
+      const result = await listArticlesByCategorySlug({
         locale,
         categorySlug: category,
-        skip: CATEGORY_ARTICLES_PER_PAGE * pageParam,
+        skip: pageParam * CATEGORY_ARTICLES_PER_PAGE,
         first: CATEGORY_ARTICLES_PER_PAGE,
-      }),
+      });
+      // Transform to expected format
+      return { articles: result.articles, count: result.count };
+    },
     getNextPageParam: (lastPage, pages) => {
       if (lastPage.count <= pages.length * CATEGORY_ARTICLES_PER_PAGE) return undefined
       return pages.length
