@@ -22,6 +22,7 @@ const config = withPlugins(
       }
     },
     images: {
+      domains: ['timesprofit.com', 'api.timesprofit.com'],
       remotePatterns: [
         {
           protocol: "https",
