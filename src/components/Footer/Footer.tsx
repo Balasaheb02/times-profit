@@ -1,10 +1,8 @@
 import Image from "next/image"
 import Link from "next/link"
 import { useLocale } from "@/i18n/i18n"
-import FacebookIcon from "../../../public/icons/facebook.svg"
-import InstagramIcon from "../../../public/icons/instagram.svg"
-import XIcon from "../../../public/icons/X.svg"
-import YoutubeIcon from "../../../public/icons/youtube.svg"
+import { FaFacebook, FaInstagram, FaYoutube } from "react-icons/fa"
+import { FaXTwitter } from "react-icons/fa6"
 import { DynamicLangSelect } from "../LangSelect/DynamicLangSelect"
 import { GetNavigationReturn } from "../Navigation/Navigation"
 
@@ -37,16 +35,16 @@ export async function Footer({ footer }: FooterProps) {
         <nav className="flex flex-col justify-between gap-10 md:gap-7">
           <div className="flex gap-5">
             <a href={twitterLink ?? ""} aria-label="Twitter" target="_blank" rel="noreferrer">
-              <XIcon />
+              <FaXTwitter className="w-6 h-6 text-gray-600 hover:text-gray-900 transition-colors" />
             </a>
             <a href={facebookLink ?? ""} aria-label="Facebook" target="_blank" rel="noreferrer">
-              <FacebookIcon />
+              <FaFacebook className="w-6 h-6 text-gray-600 hover:text-blue-600 transition-colors" />
             </a>
             <a href={instagramLink ?? ""} aria-label="Instagram" target="_blank" rel="noreferrer">
-              <InstagramIcon />
+              <FaInstagram className="w-6 h-6 text-gray-600 hover:text-pink-600 transition-colors" />
             </a>
             <a href={youtubeLink ?? ""} aria-label="Youtube" target="_blank" rel="noreferrer">
-              <YoutubeIcon />
+              <FaYoutube className="w-6 h-6 text-gray-600 hover:text-red-600 transition-colors" />
             </a>
           </div>
           <ul className="grid grid-cols-3 gap-x-10 gap-y-7 text-sm font-semibold md:gap-x-20">

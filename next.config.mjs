@@ -38,13 +38,10 @@ const config = withPlugins(
         }
       ],
     },
-    webpack: (config) => {
-      config.module.rules.push({
-        test: /\.svg$/i,
-        use: ["@svgr/webpack"],
-      })
-      return config
-    },
+    env: {
+    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
+    NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL,
+  }
   })
 )
 
