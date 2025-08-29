@@ -1,11 +1,16 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
+const defaultTheme = require("tailwindcss/defaultTheme")
+
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   darkMode: "class",
   content: [
-    "./src/**/*.{js,ts,jsx,tsx,mdx}",
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}",
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
     extend: {
@@ -88,22 +93,10 @@ module.exports = {
         8: "8px",
       },
       minHeight: {
-        "0": "0px",
-        "full": "100%",
-        "screen": "100vh",
-        "svh": "100svh",
-        "lvh": "100lvh",
-        "dvh": "100dvh",
-        "min": "min-content",
-        "max": "max-content",
-        "fit": "fit-content",
+        ...defaultTheme.height,
       },
       minWidth: {
-        "0": "0px",
-        "full": "100%",
-        "min": "min-content",
-        "max": "max-content",
-        "fit": "fit-content",
+        ...defaultTheme.width,
       },
     },
   },
