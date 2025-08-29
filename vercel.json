@@ -1,13 +1,4 @@
 {
-  "buildCommand": "npm run build",
-  "outputDirectory": ".next",
-  "installCommand": "npm install",
-  "framework": "nextjs",
-  "functions": {
-    "app/api/**/*.{js,ts}": {
-      "runtime": "nodejs18.x"
-    }
-  },
   "build": {
     "env": {
       "NEXT_TELEMETRY_DISABLED": "1"
