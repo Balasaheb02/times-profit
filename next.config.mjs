@@ -19,6 +19,11 @@ const config = withPlugins(
       // Disable TypeScript type checking during builds on Vercel
       ignoreBuildErrors: true,
     },
+    // Explicit PostCSS configuration for Vercel
+    experimental: { 
+      instrumentationHook: true,
+      esmExternals: 'loose'
+    },
     rewrites() {
       return {
         beforeFiles: [
