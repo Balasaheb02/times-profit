@@ -6,7 +6,7 @@ import { env } from "@/env.mjs"
 import { i18n, type Locale } from "@/i18n/i18n"
 import { setTranslations } from "@/i18n/setTranslations"
 import { getNavigation } from "@/lib/client"
-import '../../styles/globals.css'
+import './globals.css'
 import { GoogleAnalytics } from "../GoogleAnalytics"
 import Providers from "../Providers"
 
