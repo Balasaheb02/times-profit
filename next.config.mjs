@@ -9,6 +9,8 @@ import { env } from "./src/env.mjs"
 const config = withPlugins(
   [[withBundleAnalyzer({ enabled: env.ANALYZE })]],
   withNextIntl("./i18n.ts")({
+    output: 'export',
+    trailingSlash: true,
     reactStrictMode: true,
     eslint: {
       // Disable ESLint during builds on Vercel
@@ -18,17 +20,8 @@ const config = withPlugins(
       // Disable TypeScript type checking during builds on Vercel
       ignoreBuildErrors: true,
     },
-    rewrites() {
-      return {
-        beforeFiles: [
-          { source: "/healthz", destination: "/api/health" },
-          { source: "/api/healthz", destination: "/api/health" },
-          { source: "/health", destination: "/api/health" },
-          { source: "/ping", destination: "/api/health" },
-        ],
-      }
-    },
     images: {
+      unoptimized: true,
       domains: ['timesprofit.com', 'api.timesprofit.com'],
       remotePatterns: [
         {
