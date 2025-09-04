@@ -1,3 +1,5 @@
+"use client"
+
 import Image from "next/image"
 import Link from "next/link"
 import { useLocale } from "@/i18n/i18n"
@@ -10,7 +12,7 @@ type FooterProps = {
   footer: Pick<GetNavigationReturn, "footer">["footer"]
 }
 
-export async function Footer({ footer }: FooterProps) {
+export function Footer({ footer }: FooterProps) {
   const locale = useLocale()
 
   if (!footer?.contactSection) return null

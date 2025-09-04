@@ -8,27 +8,31 @@ import { StockDisplay } from "@/components/StockDisplay/StockDisplay"
 import { TrendingArticles } from "@/components/TrendingArticles/TrendingArticles"
 import { i18n, Locale } from "@/i18n/i18n"
 import { setTranslations } from "@/i18n/setTranslations"
+
+// Force dynamic rendering to avoid static generation issues
+export const dynamic = 'force-dynamic'
 import { getHomepage, getHomepageMetadata } from "@/lib/client"
 import { getMetadataObj } from "@/utils/getMetadataObj"
 
 export const dynamicParams = false
-export const dynamic = 'force-dynamic' // Disable static generation temporarily
 
 export function generateStaticParams() {
   return i18n.locales.map((lang) => ({ lang }))
 }
 
-export async function generateMetadata({ params }: { params: { lang: Locale } }): Promise<Metadata | null> {
-  const { seoComponent } = await getHomepageMetadata(params.lang)
+export async function generateMetadata({ params }: { params: Promise<{ lang: Locale }> }): Promise<Metadata | null> {
+  const { lang } = await params
+  const { seoComponent } = await getHomepageMetadata(lang)
   return getMetadataObj({ title: seoComponent?.title, description: seoComponent?.description?.text })
 }
 
-export default async function Web({ params }: { params: { lang: Locale } }) {
-  unstable_setRequestLocale(params.lang)
+export default async function Web({ params }: { params: Promise<{ lang: Locale }> }) {
+  const { lang } = await params
+  unstable_setRequestLocale(lang)
   
   try {
-    const homepage = await getHomepage(params.lang)
-    await setTranslations(params.lang)
+    const homepage = await getHomepage(lang)
+    await setTranslations(lang)
 
     return (
       <>
@@ -41,14 +45,14 @@ export default async function Web({ params }: { params: { lang: Locale } }) {
               additionalLink="https://blazity.com/"
             />
         )}
-        <TrendingArticles title="Trending articles" />
+        <TrendingArticles title="Trending articles" locale={lang} />
         {homepage.featuredArticles && Array.isArray(homepage.featuredArticles) && homepage.featuredArticles.length > 0 && (
           <HighlightedArticles
             title="Our picks"
             articles={homepage.featuredArticles}
           />
         )}
-        <RecentArticles title="Recent articles" />
+        <RecentArticles title="Recent articles" locale={lang} />
       </>
     )
   } catch (error) {

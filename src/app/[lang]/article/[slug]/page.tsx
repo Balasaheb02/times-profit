@@ -10,9 +10,10 @@ import { Locale } from "@/i18n/i18n"
 import { getArticleBySlug, getArticleMetadataBySlug } from "@/lib/client"
 import { getMetadataObj } from "@/utils/getMetadataObj"
 
-type ArticlePageProps = { params: { slug: string; lang: Locale } }
+type ArticlePageProps = { params: Promise<{ slug: string; lang: Locale }> }
 
-export async function generateMetadata({ params: { slug, lang } }: ArticlePageProps): Promise<Metadata | null> {
+export async function generateMetadata({ params }: { params: Promise<{ slug: string; lang: Locale }> }): Promise<Metadata | null> {
+  const { slug, lang } = await params
   const article = await getArticleMetadataBySlug({ locale: lang, slug })
   if (!article) return null
   const { seoComponent } = article
@@ -23,7 +24,8 @@ export async function generateMetadata({ params: { slug, lang } }: ArticlePagePr
   return getMetadataObj({ description, title })
 }
 
-export default async function Web({ params: { slug, lang } }: ArticlePageProps) {
+export default async function Web({ params }: { params: Promise<{ slug: string; lang: Locale }> }) {
+  const { slug, lang } = await params
   const article = await getArticleBySlug({ locale: lang, slug })
   const articleUrl = `${env.NEXT_PUBLIC_SITE_URL}/article/${slug}`
   const initialQuiz = article?.content?.references?.[0] || null

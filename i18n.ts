@@ -5,13 +5,21 @@ import { getRequestConfig } from 'next-intl/server';
 export const locales = ['en'];
 export const defaultLocale = 'en';
 
-export default getRequestConfig(async ({ locale }) => ({
-  messages: {
-    // Simple English messages
-    'header.home': 'Home',
-    'header.about': 'About', 
-    'footer.copyright': '© 2025 Times Profit',
-    'showing': 'Showing',
-    'resultsFor': 'results for',
-  }
-}));
+export default getRequestConfig(async () => {
+  // Static configuration for English only
+  return {
+    locale: 'en',
+    messages: {
+      // Nested object structure (not flat keys with dots)
+      header: {
+        home: 'Home',
+        about: 'About'
+      },
+      footer: {
+        copyright: '© 2025 Times Profit'
+      },
+      showing: 'Showing',
+      resultsFor: 'results for',
+    }
+  };
+});

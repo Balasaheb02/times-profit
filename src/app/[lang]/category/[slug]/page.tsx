@@ -5,13 +5,15 @@ import { Locale } from "@/i18n/i18n"
 import { setTranslations } from "@/i18n/setTranslations"
 import { getMetadataObj } from "@/utils/getMetadataObj"
 
-type ArticlePageProps = { params: { slug: string; lang: Locale } }
+type ArticlePageProps = { params: Promise<{ slug: string; lang: Locale }> }
 
-export async function generateMetadata({ params: { slug } }: ArticlePageProps): Promise<Metadata | null> {
+export async function generateMetadata({ params }: { params: Promise<{ slug: string; lang: Locale }> }): Promise<Metadata | null> {
+  const { slug } = await params
   return getMetadataObj({ title: `Category - ${slug}`, description: undefined })
 }
 
-export default async function Web({ params: { slug, lang } }: ArticlePageProps) {
+export default async function Web({ params }: { params: Promise<{ slug: string; lang: Locale }> }) {
+  const { slug, lang } = await params
   unstable_setRequestLocale(lang)
   await setTranslations(lang)
 

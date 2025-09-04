@@ -4,7 +4,8 @@ import generateRssFeed from "./generateRssFile"
 
 export async function GET(request: Request, { params }: { params: { lang: Locale } }) {
   try {
-    const rssContent = await generateRssFeed(params.lang)
+    const { lang } = await params
+    const rssContent = await generateRssFeed(lang)
     return new Response(rssContent, { status: 200, headers: { "Content-Type": "application/xml" } })
   } catch (err) {
     console.log(err)

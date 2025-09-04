@@ -17,7 +17,8 @@ async function generateSitemapFields(locale: Locale) {
 }
 
 export async function GET(request: Request, { params }: { params: { lang: Locale } }) {
-  const sitemapFields = await generateSitemapFields(params.lang)
+  const { lang } = await params
+  const sitemapFields = await generateSitemapFields(lang)
 
   const headers = {
     "Cache-Control": "public, max-age=86400, s-maxage=86400, stale-while-revalidate",

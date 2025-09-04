@@ -10,7 +10,6 @@ const config = withPlugins(
   [[withBundleAnalyzer({ enabled: env.ANALYZE })]],
   withNextIntl("./i18n.ts")({
     reactStrictMode: true,
-    experimental: { instrumentationHook: true },
     eslint: {
       // Disable ESLint during builds on Vercel
       ignoreDuringBuilds: true,
@@ -18,11 +17,6 @@ const config = withPlugins(
     typescript: {
       // Disable TypeScript type checking during builds on Vercel
       ignoreBuildErrors: true,
-    },
-    // Explicit PostCSS configuration for Vercel
-    experimental: { 
-      instrumentationHook: true,
-      esmExternals: 'loose'
     },
     rewrites() {
       return {

@@ -1,15 +1,15 @@
-import { useLocale } from "@/i18n/i18n"
 import { cn } from "@/utils/cn"
 import { getTrendingArticles } from "./getTrendingArticles"
 import { ArticleCard, articleToCardProps } from "../ArticleCard/ArticleCard"
 import { ArticleMinifiedCard } from "../ArticleCard/ArticleMinifiedCard"
+import { Locale } from "@/i18n/i18n"
 
 type TrendingArticlesProps = {
   title: string
+  locale?: Locale
 }
 
-export async function TrendingArticles({ title }: TrendingArticlesProps) {
-  const locale = useLocale()
+export async function TrendingArticles({ title, locale = 'en' }: TrendingArticlesProps) {
   const trendingArticles = await getTrendingArticles(locale)
 
   // Add defensive check

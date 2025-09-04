@@ -5,8 +5,11 @@ import { hygraphLocaleToStandardNotation, i18n, Locale } from "@/i18n/i18n"
 import { getPageBySlug, getPageMetadataBySlug, listPagesForSitemap } from "@/lib/client"
 import { getMetadataObj } from "@/utils/getMetadataObj"
 
+// Force dynamic rendering to avoid static generation issues
+export const dynamic = 'force-dynamic'
+
 type CustomPageProps = {
-  params: { slug: string; lang: Locale }
+  params: Promise<{ slug: string; lang: Locale }>
 }
 
 export async function generateStaticParams() {
@@ -27,7 +30,8 @@ export async function generateStaticParams() {
   return staticParams
 }
 
-export async function generateMetadata({ params: { slug, lang } }: CustomPageProps): Promise<Metadata | null> {
+export async function generateMetadata({ params }: { params: Promise<{ slug: string; lang: Locale }> }): Promise<Metadata | null> {
+  const { slug, lang } = await params
   const metaData = await getPageMetadataBySlug({ locale: lang, slug })
   if (!metaData) return null
 
@@ -36,7 +40,8 @@ export async function generateMetadata({ params: { slug, lang } }: CustomPagePro
   return getMetadataObj({ title: seoComponent?.title, description: seoComponent?.description?.text })
 }
 
-export default async function Web({ params: { slug, lang } }: CustomPageProps) {
+export default async function Web({ params }: { params: Promise<{ slug: string; lang: Locale }> }) {
+  const { slug, lang } = await params
   unstable_setRequestLocale(lang)
   const page = await getPageBySlug({ locale: lang, slug })
 

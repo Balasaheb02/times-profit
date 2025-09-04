@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation"
+import { type Metadata } from "next"
 import { unstable_setRequestLocale } from "next-intl/server"
 import { Footer } from "@/components/Footer/Footer"
 import { Navigation } from "@/components/Navigation/Navigation"
@@ -10,8 +11,9 @@ import "@/styles/tailwind.css"
 import { GoogleAnalytics } from "../GoogleAnalytics"
 import Providers from "../Providers"
 
-export async function generateMetadata({ params }: { params: { lang: Locale } }) {
-  const locale = params.lang ?? i18n.defaultLocale
+export async function generateMetadata({ params }: { params: Promise<{ lang: Locale }> }): Promise<Metadata> {
+  const { lang } = await params
+  const locale = lang ?? i18n.defaultLocale
   return {
     metadataBase: new URL(env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'),
     title: "Blazity-Hygraph news starter",
@@ -36,13 +38,29 @@ export async function generateMetadata({ params }: { params: { lang: Locale } })
   }
 }
 
-export default async function Layout({ children, params }: { children: React.ReactNode; params: { lang?: Locale } }) {
-  const locale = params.lang ?? i18n.defaultLocale
+export default async function Layout({ children, params }: { children: React.ReactNode; params: Promise<{ lang?: Locale }> }) {
+  const { lang } = await params
+  const locale = lang ?? i18n.defaultLocale
   const isValidLocale = i18n.locales.some((cur) => cur === locale)
   if (!isValidLocale) notFound()
+  
   unstable_setRequestLocale(locale)
-  const translations = await setTranslations(locale)
-  const { navigation, footer } = await getNavigation(locale)
+  
+  let translations = {}
+  let navigation = null
+  let footer = null
+  
+  try {
+    translations = await setTranslations(locale)
+    const navData = await getNavigation(locale)
+    navigation = navData.navigation
+    footer = navData.footer
+  } catch (error) {
+    console.error('Error loading layout data:', error)
+    translations = {}
+    navigation = null
+    footer = null
+  }
 
   return (
     <html lang={locale}>
