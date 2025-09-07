@@ -17,5 +17,5 @@ export default async function Web({ params }: { params: Promise<{ slug: string; 
   unstable_setRequestLocale(lang)
   await setTranslations(lang)
 
-  return <CategoryArticles category={slug} />
+  return <CategoryArticles category={slug} locale={lang} />
 }

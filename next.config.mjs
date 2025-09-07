@@ -9,8 +9,6 @@ import { env } from "./src/env.mjs"
 const config = withPlugins(
   [[withBundleAnalyzer({ enabled: env.ANALYZE })]],
   withNextIntl("./i18n.ts")({
-    output: 'export',
-    trailingSlash: true,
     reactStrictMode: true,
     eslint: {
       // Disable ESLint during builds on Vercel
@@ -21,12 +19,11 @@ const config = withPlugins(
       ignoreBuildErrors: true,
     },
     images: {
-      unoptimized: true,
-      domains: ['timesprofit.com', 'api.timesprofit.com'],
+      domains: ['images.unsplash.com'],
       remotePatterns: [
         {
           protocol: "https",
-          hostname: "**.graphassets.com",
+          hostname: "images.unsplash.com",
         },
         {
           protocol: "https",
