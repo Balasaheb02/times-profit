@@ -1,9 +1,9 @@
 import { Locale } from "@/i18n/i18n"
-import { getTrendingArticles as getBackendTrendingArticles } from "@/lib/client"
+import { getTrendingArticles as getBackendTrendingArticles } from "@/lib/backend-client"
 
 export const getTrendingArticles = async (lang: Locale) => {
   try {
-    // Get trending articles from local dummy data
+    // Get trending articles from backend with fallback to dummy data
     const articles = await getBackendTrendingArticles({ locale: lang, skip: 0, first: 10 })
     
     // Add extra defensive check

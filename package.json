@@ -9,6 +9,7 @@
     "export": "next build",
     "postbuild": "next-sitemap  --config next-sitemap.config.js",
     "start": "next start",
+    "test-backend": "node test-backend.js",
     "lint": "next lint",
     "lint:fix": "next lint --fix",
     "prettier": "prettier --check \"**/*.{js,jsx,ts,tsx}\"",

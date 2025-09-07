@@ -8,13 +8,13 @@ import { StockDisplay } from "@/components/StockDisplay/StockDisplay"
 import { TrendingArticles } from "@/components/TrendingArticles/TrendingArticles"
 import { Locale } from "@/i18n/i18n"
 import { setTranslations } from "@/i18n/setTranslations"
-import { getHomepage, getHomepageMetadata } from "@/lib/client"
+import { getHomepage, getHomepageMetadata, testBackendConnection } from "@/lib/backend-client"
 import { getMetadataObj } from "@/utils/getMetadataObj"
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: Locale }> }): Promise<Metadata | null> {
   const { lang } = await params
-  const { seoComponent } = await getHomepageMetadata(lang)
-  return getMetadataObj({ title: seoComponent?.title, description: seoComponent?.description?.text })
+  const homepageMetadata = await getHomepageMetadata(lang) as any
+  return getMetadataObj({ title: homepageMetadata?.seoComponent?.title, description: homepageMetadata?.seoComponent?.description?.text })
 }
 
 export default async function Web({ params }: { params: Promise<{ lang: Locale }> }) {
@@ -22,14 +22,20 @@ export default async function Web({ params }: { params: Promise<{ lang: Locale }
   unstable_setRequestLocale(lang)
   
   try {
-    const homepage = await getHomepage(lang)
+    // Test backend connection first
+    console.log('Testing backend connection...')
+    await testBackendConnection()
+    
+    const homepage = await getHomepage(lang) as any
     await setTranslations(lang)
 
     return (
       <>
-        {homepage.marketStock?.data && <StockDisplay quotes={homepage.marketStock?.data} />}
+        {homepage?.marketStock?.data && Array.isArray(homepage.marketStock.data) && homepage.marketStock.data.length > 0 && (
+          <StockDisplay quotes={homepage.marketStock.data} />
+        )}
 
-        {homepage.heroArticle && (
+        {homepage?.heroArticle && (
             <HeroArticleCard
               article={articleToCardProps(homepage.heroArticle)}
               asLink
@@ -37,7 +43,7 @@ export default async function Web({ params }: { params: Promise<{ lang: Locale }
             />
         )}
         <TrendingArticles title="Trending articles" locale={lang} />
-        {homepage.featuredArticles && Array.isArray(homepage.featuredArticles) && homepage.featuredArticles.length > 0 && (
+        {homepage?.featuredArticles && Array.isArray(homepage.featuredArticles) && homepage.featuredArticles.length > 0 && (
           <HighlightedArticles
             title="Our picks"
             articles={homepage.featuredArticles}

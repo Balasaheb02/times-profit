@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation"
 import { Locale } from "@/i18n/i18n"
 import { getTranslations } from "@/i18n/setTranslations"
-import { listArticlesByCategorySlug } from "@/lib/client"
+import { listArticlesByCategorySlug } from "@/lib/backend-client"
 import { CategoryArticlesInfiniteDynamic } from "./CategoryArticlesInfiniteDynamic"
 
 export const CATEGORY_ARTICLES_PER_PAGE = 4
@@ -18,7 +18,7 @@ export async function CategoryArticles({ category, locale }: CategoryArticlesPro
     categorySlug: category,
     skip: 0,
     first: CATEGORY_ARTICLES_PER_PAGE,
-  })
+  }) as any
 
   if (!articles || !articles.articles) return notFound()
   
@@ -32,7 +32,6 @@ export async function CategoryArticles({ category, locale }: CategoryArticlesPro
       <div className="mx-auto w-full">
         <CategoryArticlesInfiniteDynamic 
           category={category} 
-          locale={locale}
           initialArticles={{ articles: articles.articles || [], count: articles.count || 0 }} 
         />
       </div>

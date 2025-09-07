@@ -1,5 +1,5 @@
 import { Locale } from "@/i18n/i18n"
-import { getRecentArticlesWithMain } from "@/lib/client"
+import { getRecentArticlesWithMain } from "@/lib/backend-client"
 import { RecentArticlesInfiniteDynamic } from "./RecentArticlesInfiniteDynamic"
 import { ArticleCard, articleToCardProps } from "../ArticleCard/ArticleCard"
 
@@ -13,7 +13,7 @@ type RecentArticlesProps = {
 export async function RecentArticles({ title, locale = 'en' }: RecentArticlesProps) {
   
   try {
-    const initialArticles = await getRecentArticlesWithMain({ locale, first: 3, skip: 1 })
+    const initialArticles = await getRecentArticlesWithMain({ locale, first: 3, skip: 1 }) as any
     
     // Defensive checks
     if (!initialArticles || !initialArticles.mainArticle || !Array.isArray(initialArticles.mainArticle) || initialArticles.mainArticle.length === 0) {
