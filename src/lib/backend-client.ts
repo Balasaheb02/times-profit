@@ -169,6 +169,9 @@ class ApiClient {
     })
   }
 
+
+
+
   async getRecommendedArticles(articleId: string, locale: string) {
     return this.request(`/api/articles/${articleId}/recommended?locale=${locale}`)
   }
@@ -184,6 +187,23 @@ class ApiClient {
     })
     
     return this.request(`/api/quiz/${quizId}?${queryParams}`)
+  }
+
+  // Database Admin endpoints
+  async getDatabaseStats() {
+    return this.request('/api/admin/stats-json')
+  }
+
+  async getDatabaseTables() {
+    return this.request('/api/admin/tables-json')
+  }
+
+  async getTableData(tableName: string, limit = 20, offset = 0) {
+    const queryParams = new URLSearchParams({
+      limit: limit.toString(),
+      offset: offset.toString()
+    })
+    return this.request(`/api/admin/table-json/${tableName}?${queryParams}`)
   }
 }
 
@@ -442,5 +462,33 @@ export async function testBackendConnection() {
   } catch (error) {
     console.error('❌ Backend connection failed:', error)
     return false
+  }
+}
+
+// Database Admin Functions
+export async function getDatabaseStats() {
+  try {
+    return await apiClient.getDatabaseStats()
+  } catch (error) {
+    console.error('Database stats error:', error)
+    return { error: 'Failed to get database statistics', status: 'error' }
+  }
+}
+
+export async function getDatabaseTables() {
+  try {
+    return await apiClient.getDatabaseTables()
+  } catch (error) {
+    console.error('Database tables error:', error)
+    return { error: 'Failed to get database tables', status: 'error' }
+  }
+}
+
+export async function getTableData(tableName: string, limit = 20, offset = 0) {
+  try {
+    return await apiClient.getTableData(tableName, limit, offset)
+  } catch (error) {
+    console.error(`Table ${tableName} data error:`, error)
+    return { error: `Failed to get data from table ${tableName}`, status: 'error' }
   }
 }

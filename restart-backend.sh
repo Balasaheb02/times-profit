@@ -1,0 +1,30 @@
+#!/bin/bash
+
+echo "🔄 Restarting Flask Backend to Load Database Admin Routes..."
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+# Commands to run on your VPS to restart the Flask backend
+echo "Run these commands on your VPS:"
+echo ""
+echo "# 1. SSH into your server"
+echo "ssh newsapp@your-vps-ip"
+echo ""
+echo "# 2. Restart the Flask backend service"
+echo "sudo systemctl restart newsapp"
+echo ""
+echo "# 3. Check service status"
+echo "sudo systemctl status newsapp"
+echo ""
+echo "# 4. Check if new routes are loaded (should show database admin routes)"
+echo "curl http://api.timesprofit.com/api/admin/stats-json"
+echo ""
+echo "# 5. Test the web interface"
+echo "curl -I http://api.timesprofit.com/api/admin/db"
+echo ""
+
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "After restarting, your database admin will be available at:"
+echo "📊 Dashboard: http://api.timesprofit.com/api/admin/db"
+echo "📋 Tables: http://api.timesprofit.com/api/admin/db/tables"
+echo "📰 Articles: http://api.timesprofit.com/api/admin/db/table/articles"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
