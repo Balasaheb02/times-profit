@@ -21,7 +21,13 @@ export async function RecentArticles({ title, locale = 'en' }: RecentArticlesPro
     }
     
     const mainArticle = initialArticles.mainArticle[0] as any
-    const recentArticles = initialArticles.recentArticles || []
+    const recentArticles = Array.isArray(initialArticles.recentArticles) ? initialArticles.recentArticles : []
+
+    // Additional validation
+    if (!mainArticle || !mainArticle.id) {
+      console.warn('RecentArticles: Invalid main article')
+      return null
+    }
 
     return (
       <section className="w-full">

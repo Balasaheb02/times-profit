@@ -24,13 +24,28 @@ export function RecentArticlesInfinite({ initialArticles }: RecentArticlesInfini
   } = useInfiniteQuery({
     queryKey: ["recent-articles"],
     queryFn: async ({ pageParam = 0 }) => {
-      const result = await getRecentArticles({
-        locale,
-        skip: RECENT_ARTICLES_PER_PAGE * pageParam + 1,
-        first: RECENT_ARTICLES_PER_PAGE,
-      });
-      // Ensure we return the correct structure
-      return result as { articles: any[]; count: number };
+      try {
+        const result = await getRecentArticles({
+          locale,
+          skip: RECENT_ARTICLES_PER_PAGE * pageParam + 1,
+          first: RECENT_ARTICLES_PER_PAGE,
+        });
+        
+        // Defensive checks
+        if (!result || typeof result !== 'object') {
+          console.warn('RecentArticlesInfinite: Invalid result from getRecentArticles')
+          return { articles: [], count: 0 };
+        }
+        
+        // Ensure we return the correct structure with defensive checks
+        return {
+          articles: Array.isArray(result.articles) ? result.articles : [],
+          count: typeof result.count === 'number' ? result.count : 0
+        };
+      } catch (error) {
+        console.error('RecentArticlesInfinite: Error fetching articles:', error)
+        return { articles: [], count: 0 };
+      }
     },
     getNextPageParam: (lastPage, pages) => {
       if (lastPage.count <= pages.length * RECENT_ARTICLES_PER_PAGE) return undefined
@@ -42,8 +57,12 @@ export function RecentArticlesInfinite({ initialArticles }: RecentArticlesInfini
     },
   })
 
-  const articles = recentArticlesQuery?.pages.flatMap((page) => page.articles)
-  if (!articles) return null
+  const articles = recentArticlesQuery?.pages?.flatMap((page) => Array.isArray(page?.articles) ? page.articles : []) || []
+  
+  if (!Array.isArray(articles) || articles.length === 0) {
+    return <div>No articles available</div>
+  }
+  
   const [...otherArticles] = articles
 
   return (

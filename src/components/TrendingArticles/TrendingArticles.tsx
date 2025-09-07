@@ -12,13 +12,24 @@ type TrendingArticlesProps = {
 export async function TrendingArticles({ title, locale = 'en' }: TrendingArticlesProps) {
   const trendingArticles = await getTrendingArticles(locale)
 
-  // Add defensive check
+  // Add comprehensive defensive checks
   if (!trendingArticles || !Array.isArray(trendingArticles) || trendingArticles.length === 0) {
+    console.warn('TrendingArticles: No valid articles data')
     return null
   }
 
-  const [mainArticle, ...secondaryArticles] = trendingArticles.slice(0, 3)
-  const minifiedArticles = trendingArticles.slice(3, 12)
+  // Filter out any invalid articles
+  const validArticles = trendingArticles.filter((article: any) => 
+    article && typeof article === 'object' && article.id && article.title
+  )
+
+  if (validArticles.length === 0) {
+    console.warn('TrendingArticles: No valid articles after filtering')
+    return null
+  }
+
+  const [mainArticle, ...secondaryArticles] = validArticles.slice(0, 3)
+  const minifiedArticles = validArticles.slice(3, 12)
 
   const isTwoRowLayout = minifiedArticles.length > 0
 
@@ -39,9 +50,10 @@ export async function TrendingArticles({ title, locale = 'en' }: TrendingArticle
                   />
                 </div>
               )}
-              {secondaryArticles.length > 0 && (
+              {Array.isArray(secondaryArticles) && secondaryArticles.length > 0 && (
                 <div className="flex flex-col gap-5 lg:h-[490px] lg:flex-row">
                   {secondaryArticles.map((article: any) => {
+                    if (!article || !article.id) return null
                     return (
                       <ArticleCard
                         key={`trending-${article.id}`}
@@ -49,14 +61,15 @@ export async function TrendingArticles({ title, locale = 'en' }: TrendingArticle
                         tagsPosition="under"
                       />
                     )
-                  })}
+                  }).filter(Boolean)}
                 </div>
               )}
             </div>
 
-            {minifiedArticles.length > 0 && (
+            {Array.isArray(minifiedArticles) && minifiedArticles.length > 0 && (
               <div className="col-span-1 flex flex-col gap-[1.13rem] lg:gap-[1.17rem]">
                 {minifiedArticles.map((article: any) => {
+                  if (!article || !article.id) return null
                   return (
                     <ArticleMinifiedCard
                       key={`trending-${article.id}`}
@@ -64,7 +77,7 @@ export async function TrendingArticles({ title, locale = 'en' }: TrendingArticle
                       locale={locale}
                     />
                   )
-                })}
+                }).filter(Boolean)}
               </div>
             )}
           </div>
