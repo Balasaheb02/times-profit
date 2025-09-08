@@ -150,3 +150,139 @@ def search_articles():
     ).order_by(desc(Article.published_at)).all()
     
     return jsonify(articles_schema.dump(articles))
+
+@articles_bp.route('/recent-with-main', methods=['GET'])
+def get_recent_articles_with_main():
+    """Get recent articles with a main article (first one) and others"""
+    try:
+        locale = request.args.get('locale', 'en')
+        skip = request.args.get('skip', 0, type=int)
+        first = request.args.get('first', 4, type=int)
+        
+        # Get recent articles, skipping the specified number
+        articles = Article.query.filter(
+            Article.is_published == True
+        ).order_by(desc(Article.published_at)).offset(skip).limit(first).all()
+        
+        if not articles:
+            return jsonify({
+                'success': True,
+                'data': {
+                    'mainArticle': None,
+                    'articles': []
+                }
+            })
+        
+        # First article is the main article, rest are regular articles
+        main_article = articles[0] if articles else None
+        other_articles = articles[1:] if len(articles) > 1 else []
+        
+        return jsonify({
+            'success': True,
+            'data': {
+                'mainArticle': article_schema.dump(main_article) if main_article else None,
+                'articles': articles_schema.dump(other_articles)
+            }
+        })
+        
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e),
+            'message': 'Failed to load recent articles'
+        }), 500
+
+@articles_bp.route('/by-category-slug', methods=['GET'])
+def get_articles_by_category_slug():
+    """Get articles by category slug"""
+    try:
+        locale = request.args.get('locale', 'en')
+        category_slug = request.args.get('categorySlug')
+        skip = request.args.get('skip', 0, type=int)
+        first = request.args.get('first', 10, type=int)
+        
+        if not category_slug:
+            return jsonify({'error': 'categorySlug is required'}), 400
+        
+        # Find category by slug
+        category = Category.query.filter_by(slug=category_slug).first()
+        if not category:
+            return jsonify({'error': 'Category not found'}), 404
+        
+        # Get articles in this category
+        articles = Article.query.filter(
+            Article.is_published == True,
+            Article.category_id == category.id
+        ).order_by(desc(Article.published_at)).offset(skip).limit(first).all()
+        
+        return jsonify({
+            'success': True,
+            'data': {
+                'articles': articles_schema.dump(articles),
+                'category': {
+                    'id': category.id,
+                    'name': category.name,
+                    'slug': category.slug,
+                    'description': category.description
+                },
+                'total': Article.query.filter(
+                    Article.is_published == True,
+                    Article.category_id == category.id
+                ).count()
+            }
+        })
+        
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e),
+            'message': 'Failed to load articles by category'
+        }), 500
+
+@articles_bp.route('/count', methods=['GET'])
+def get_articles_count():
+    """Get total count of published articles"""
+    try:
+        locale = request.args.get('locale', 'en')
+        
+        count = Article.query.filter(Article.is_published == True).count()
+        
+        return jsonify({
+            'success': True,
+            'count': count
+        })
+        
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e),
+            'count': 0
+        }), 500
+
+@articles_bp.route('/by-slugs', methods=['POST'])
+def get_articles_by_slugs():
+    """Get articles by multiple slugs"""
+    try:
+        data = request.get_json()
+        if not data or 'slugs' not in data:
+            return jsonify({'error': 'slugs array is required'}), 400
+        
+        locale = data.get('locale', 'en')
+        slugs = data['slugs']
+        
+        articles = Article.query.filter(
+            Article.is_published == True,
+            Article.slug.in_(slugs)
+        ).all()
+        
+        return jsonify({
+            'success': True,
+            'data': articles_schema.dump(articles)
+        })
+        
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e),
+            'message': 'Failed to load articles by slugs'
+        }), 500

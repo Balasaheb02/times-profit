@@ -1,0 +1,152 @@
+📊 DBeaver Connection Setup for Times Profit Database
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🎯 YOUR EXACT CONNECTION DETAILS:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Database Type:    PostgreSQL
+Host:             [YOUR_VPS_IP]
+Port:             5432
+Database:         newsdb
+Username:         newsuser
+Password:         YourSecurePassword123!
+
+🚀 STEP-BY-STEP DBEAVER SETUP:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. 📥 Download & Install DBeaver:
+   • Go to: https://dbeaver.io/download/
+   • Download "DBeaver Community Edition" (FREE)
+   • Install and launch DBeaver
+
+2. 🔗 Create New Connection:
+   • Click "New Database Connection" (+) button
+   • Select "PostgreSQL" from the list
+   • Click "Next"
+
+3. ⚙️ Configure Connection Settings:
+   ┌─────────────────────────────────────────────────────────┐
+   │ Connection Settings:                                    │
+   │                                                         │
+   │ Host:          [YOUR_VPS_IP]                           │
+   │ Port:          5432                                     │
+   │ Database:      newsdb                                   │
+   │ Username:      newsuser                                 │
+   │ Password:      YourSecurePassword123!                   │
+   │                                                         │
+   │ ☑ Save password locally                                 │
+   │ ☑ Show all databases                                    │
+   └─────────────────────────────────────────────────────────┘
+
+4. 🧪 Test Connection:
+   • Click "Test Connection" button
+   • Should show: "Connected" with green checkmark
+   • If prompted, download PostgreSQL driver
+
+5. ✅ Finish Setup:
+   • Click "Finish" to create connection
+   • Connection appears in Database Navigator
+
+🔍 EXPLORING YOUR DATABASE:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+After connecting, you'll see:
+
+📁 newsdb
+├── 📁 Schemas
+│   └── 📁 public
+│       ├── 📁 Tables
+│       │   ├── 📋 articles      ← Your news articles
+│       │   ├── 📋 categories    ← Article categories  
+│       │   ├── 📋 authors       ← Article authors
+│       │   ├── 📋 tags          ← Article tags
+│       │   └── 📋 users         ← User accounts
+│       ├── 📁 Views
+│       └── 📁 Functions
+
+💡 HOW TO VIEW & EDIT DATA:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. 📊 View Table Data:
+   • Right-click on "articles" table
+   • Select "Open Data" (or press F8)
+   • Data appears in spreadsheet view
+
+2. ✏️ Edit Data:
+   • Double-click any cell to edit
+   • Press Enter to save changes
+   • Changes save to database immediately
+
+3. ➕ Add New Records:
+   • Right-click in data grid
+   • Select "Add Row"
+   • Fill in the new row data
+   • Press Ctrl+S to save
+
+🔄 REAL-TIME API TESTING:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+After making changes in DBeaver, test your APIs:
+
+• Articles API:     http://api.timesprofit.com/api/articles/recent
+• Categories API:   http://api.timesprofit.com/api/categories  
+• Database Stats:   http://api.timesprofit.com/api/admin/stats-json
+• Admin Interface:  http://api.timesprofit.com/api/admin/db
+
+🧪 SAMPLE OPERATIONS TO TRY:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. 📰 Add New Article:
+   • Open articles table
+   • Add new row with title, slug, content
+   • Check API: your article appears instantly!
+
+2. 📊 Update View Counts:
+   • Change 'views' column for any article
+   • Check trending articles API
+
+3. 🏷️ Add New Category:
+   • Open categories table  
+   • Add new category with name and slug
+   • Check categories API
+
+4. 👤 Update Author Info:
+   • Open authors table
+   • Update bio or name
+   • Changes reflect in article details
+
+🚨 TROUBLESHOOTING:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+❌ Connection Refused:
+   → Run the PostgreSQL configuration script first
+   → Check firewall: sudo ufw allow 5432
+
+❌ Authentication Failed:
+   → Verify password: YourSecurePassword123!
+   → Check username: newsuser
+
+❌ Database Not Found:
+   → Make sure database name is: newsdb
+   → Check if newsdb exists: sudo -u postgres psql -l
+
+❌ Timeout:
+   → Verify your VPS IP address
+   → Check if PostgreSQL is listening: sudo netstat -tlnp | grep 5432
+
+🎉 SUCCESS INDICATORS:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ Connection test passes in DBeaver
+✅ Can see all tables (articles, categories, authors, etc.)
+✅ Can view and edit table data
+✅ Changes immediately reflect in your APIs
+✅ Your frontend shows updated data in real-time
+
+🔗 NEXT STEPS:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Configure PostgreSQL (run the script below)
+2. Install and setup DBeaver with above settings
+3. Start managing your database visually!
+4. Watch changes appear instantly in your APIs

@@ -1,0 +1,113 @@
+📊 DBeaver Connection Setup - Step by Step Guide
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🚀 STEP 1: Open DBeaver and Create New Connection
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Launch DBeaver
+2. Click "New Database Connection" (+ icon)
+3. Select "PostgreSQL" from the database list
+4. Click "Next"
+
+🔧 STEP 2: Configure Connection Settings
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Connection Settings Tab:
+┌─────────────────────────────────────────────────────────────┐
+│ Server Host:     [YOUR_VPS_IP_ADDRESS]                     │
+│ Port:            5432                                       │
+│ Database:        newsdb                                     │
+│ Username:        newsuser                                   │
+│ Password:        [YOUR_DATABASE_PASSWORD]                   │
+│                                                             │
+│ ☑ Save password locally                                     │
+│ ☑ Show all databases                                        │
+└─────────────────────────────────────────────────────────────┘
+
+🔐 STEP 3: Get Your Database Credentials
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+From your VPS, run:
+cat /home/newsapp/times-profit/backend/.env
+
+Look for:
+DATABASE_URL=postgresql://newsuser:PASSWORD@localhost/newsdb
+
+🧪 STEP 4: Test Connection
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Click "Test Connection" button
+2. If successful: ✅ "Connected" message appears
+3. If failed: See troubleshooting section below
+
+🔒 STEP 5: Advanced Settings (Optional)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+SSH Tab (for secure connection):
+┌─────────────────────────────────────────────────────────────┐
+│ ☑ Use SSH Tunnel                                           │
+│ Host/IP:         [YOUR_VPS_IP]                             │
+│ Port:            22                                         │
+│ Username:        newsapp                                    │
+│ Authentication:  [Public Key or Password]                   │
+└─────────────────────────────────────────────────────────────┘
+
+SSL Tab:
+┌─────────────────────────────────────────────────────────────┐
+│ SSL Mode:        prefer                                     │
+│ ☐ Verify CA      (uncheck for self-signed certificates)    │
+└─────────────────────────────────────────────────────────────┘
+
+⚡ STEP 6: Connect and Explore
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Click "Finish" to create connection
+2. Double-click connection to connect
+3. Expand database tree:
+   📁 newsdb
+   ├── 📁 Schemas
+   │   └── 📁 public
+   │       ├── 📁 Tables
+   │       │   ├── 📋 articles
+   │       │   ├── 📋 categories
+   │       │   ├── 📋 authors
+   │       │   └── 📋 tags
+   │       └── 📁 Views
+
+🎯 STEP 7: Verify Data Visualization
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Right-click on "articles" table
+2. Select "Open Data" or press F8
+3. You should see your articles data in a spreadsheet view
+4. Try editing a cell and press Enter to save
+
+🔧 TROUBLESHOOTING
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+❌ Connection Refused:
+   • Check if PostgreSQL allows remote connections
+   • Verify firewall port 5432 is open
+   • Run: sudo ufw allow 5432
+
+❌ Authentication Failed:
+   • Verify username and password from .env file
+   • Check pg_hba.conf for md5 authentication
+
+❌ Database Not Found:
+   • Check database name in .env file
+   • Run: sudo -u postgres psql -l
+
+❌ Timeout:
+   • Check VPS IP address
+   • Verify PostgreSQL is listening on all addresses
+   • Check listen_addresses = '*' in postgresql.conf
+
+🚀 SUCCESS INDICATORS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ Connection test passes
+✅ Database tree expands showing tables
+✅ Can view table data
+✅ Can edit data and see changes
+✅ Changes reflect in your backend APIs immediately!

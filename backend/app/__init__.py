@@ -34,6 +34,7 @@ def create_app(config_name=None):
     from app.routes.stocks import stocks_bp
     from app.routes.settings import settings_bp
     from app.routes.db_admin import db_admin_bp
+    from app.routes.homepage import homepage_bp
     
     app.register_blueprint(articles_bp, url_prefix='/api/articles')
     app.register_blueprint(categories_bp, url_prefix='/api/categories')
@@ -45,6 +46,7 @@ def create_app(config_name=None):
     app.register_blueprint(stocks_bp, url_prefix='/api/stocks')
     app.register_blueprint(settings_bp, url_prefix='/api/settings')
     app.register_blueprint(db_admin_bp)
+    app.register_blueprint(homepage_bp)
     
     @app.route('/api/health')
     def health_check():

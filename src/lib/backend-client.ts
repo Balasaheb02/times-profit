@@ -6,6 +6,9 @@ class ApiClient {
   private async request(endpoint: string, options: RequestInit = {}) {
     const url = `${API_BASE_URL}${endpoint}`
     
+    // 🔍 LOG ALL API CALLS
+    console.log(`🌐 API CALL: ${url}`)
+    
     try {
       const response = await fetch(url, {
         headers: {
@@ -16,12 +19,15 @@ class ApiClient {
       })
       
       if (!response.ok) {
+        console.log(`❌ API FAILED: ${url} - Status: ${response.status}`)
         throw new Error(`HTTP error! status: ${response.status}`)
       }
       
-      return await response.json()
+      const data = await response.json()
+      console.log(`✅ API SUCCESS: ${url}`, data)
+      return data
     } catch (error) {
-      console.error(`API request failed for ${endpoint}:`, error)
+      console.error(`💥 API ERROR for ${endpoint}:`, error)
       throw error
     }
   }
