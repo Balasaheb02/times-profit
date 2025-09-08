@@ -1,6 +1,6 @@
 import { Locale } from "@/i18n/i18n"
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://api.timesprofit.com'
+const API_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://api.timesprofit.com'
 
 class ApiClient {
   private async request(endpoint: string, options: RequestInit = {}) {
