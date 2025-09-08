@@ -8,6 +8,7 @@ class ApiClient {
     
     // 🔍 LOG ALL API CALLS
     console.log(`🌐 API CALL: ${url}`)
+    console.log(`🔍 Environment: NODE_ENV=${process.env.NODE_ENV}, API_BASE_URL=${API_BASE_URL}`)
     
     try {
       const response = await fetch(url, {
@@ -19,15 +20,26 @@ class ApiClient {
       })
       
       if (!response.ok) {
-        console.log(`❌ API FAILED: ${url} - Status: ${response.status}`)
-        throw new Error(`HTTP error! status: ${response.status}`)
+        console.log(`❌ API FAILED: ${url} - Status: ${response.status} ${response.statusText}`)
+        const errorText = await response.text().catch(() => 'Unable to read error response')
+        console.log(`❌ Error response: ${errorText}`)
+        throw new Error(`HTTP error! status: ${response.status} - ${response.statusText}`)
       }
       
       const data = await response.json()
-      console.log(`✅ API SUCCESS: ${url}`, data)
+      console.log(`✅ API SUCCESS: ${url}`, { 
+        dataType: typeof data, 
+        hasData: !!data,
+        keys: Object.keys(data || {})
+      })
       return data
     } catch (error) {
       console.error(`💥 API ERROR for ${endpoint}:`, error)
+      console.error(`💥 Error type: ${error instanceof Error ? error.constructor.name : typeof error}`)
+      if (error instanceof Error) {
+        console.error(`💥 Error message: ${error.message}`)
+        console.error(`💥 Error stack: ${error.stack}`)
+      }
       throw error
     }
   }
