@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: timesprofit-frontend
+    runtime: node
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NEXT_PUBLIC_BACKEND_URL
+        value: http://api.timesprofit.com
+      - key: NEXT_PUBLIC_API_URL
+        value: http://api.timesprofit.com/api
+      - key: NEXT_PUBLIC_SITE_URL
+        value: https://timesprofit.com
+      - key: NEXT_TELEMETRY_DISABLED
+        value: "1"

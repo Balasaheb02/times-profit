@@ -16,6 +16,8 @@ export const env = createEnv({
     // NEXT_PUBLIC_ALGOLIA_API_ID: z.string().optional(), // Not using Algolia
     // NEXT_PUBLIC_ALGOLIA_SEARCH_API_KEY: z.string().optional(), // Not using Algolia
     NEXT_PUBLIC_SITE_URL: z.string().optional(),
+    NEXT_PUBLIC_BACKEND_URL: z.string().optional(),
+    NEXT_PUBLIC_API_URL: z.string().optional(),
   },
   runtimeEnv: {
     ANALYZE: process.env.ANALYZE,
@@ -25,6 +27,8 @@ export const env = createEnv({
     // NEXT_PUBLIC_ALGOLIA_API_ID: process.env.NEXT_PUBLIC_ALGOLIA_API_ID, // Not using Algolia
     // NEXT_PUBLIC_ALGOLIA_SEARCH_API_KEY: process.env.NEXT_PUBLIC_ALGOLIA_SEARCH_API_KEY, // Not using Algolia
     NEXT_PUBLIC_SITE_URL: `https://${process.env.NEXT_PUBLIC_SITE_URL ?? process.env.VERCEL_URL ?? "localhost:3000"}`,
+    NEXT_PUBLIC_BACKEND_URL: process.env.NEXT_PUBLIC_BACKEND_URL ?? "http://api.timesprofit.com",
+    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL ?? "http://api.timesprofit.com/api",
   },
   skipValidation: process.env.SKIP_ENV_VALIDATION?.toString() === "true",
 })
