@@ -10,6 +10,10 @@ const config = withPlugins(
   [[withBundleAnalyzer({ enabled: env.ANALYZE })]],
   withNextIntl("./i18n.ts")({
     reactStrictMode: true,
+    experimental: {
+      reactCompiler: false,
+      hydrationDiff: true,
+    },
     eslint: {
       // Disable ESLint during builds on Vercel
       ignoreDuringBuilds: true,

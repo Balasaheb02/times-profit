@@ -29,24 +29,28 @@ export default async function Web({ params }: { params: Promise<{ lang: Locale }
     const homepage = await getHomepage(lang) as any
     await setTranslations(lang)
 
+    // Handle backend data structure vs dummy data structure
+    const heroArticle = homepage?.heroArticle || homepage?.data?.featured_articles?.[0]
+    const featuredArticles = homepage?.featuredArticles || homepage?.data?.featured_articles
+
     return (
       <>
         {homepage?.marketStock?.data && Array.isArray(homepage.marketStock.data) && homepage.marketStock.data.length > 0 && (
           <StockDisplay quotes={homepage.marketStock.data} />
         )}
 
-        {homepage?.heroArticle && (
+        {heroArticle && (
             <HeroArticleCard
-              article={articleToCardProps(homepage.heroArticle)}
+              article={articleToCardProps(heroArticle)}
               asLink
               additionalLink="https://blazity.com/"
             />
         )}
         <TrendingArticles title="Trending articles" locale={lang} />
-        {homepage?.featuredArticles && Array.isArray(homepage.featuredArticles) && homepage.featuredArticles.length > 0 && (
+        {featuredArticles && Array.isArray(featuredArticles) && featuredArticles.length > 0 && (
           <HighlightedArticles
             title="Our picks"
-            articles={homepage.featuredArticles}
+            articles={featuredArticles}
           />
         )}
         <RecentArticles title="Recent articles" locale={lang} />

@@ -77,7 +77,8 @@ class ApiClient {
   }
 
   async getArticleMetadata(slug: string, locale: string) {
-    return this.request(`/api/articles/${slug}/metadata?locale=${locale}`)
+    // Use the same endpoint as getArticleBySlug since metadata is included in the article data
+    return this.request(`/api/articles/${slug}?locale=${locale}`)
   }
 
   async getTrendingArticles(locale: string, first?: number) {

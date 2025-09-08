@@ -66,7 +66,10 @@ export default async function Layout({ children, params }: { children: React.Rea
     <html lang={locale}>
       <GoogleAnalytics />
       <Providers translations={translations} locale={locale}>
-        <body className="flex min-h-screen flex-col items-center">
+        <body 
+          className="flex min-h-screen flex-col items-center"
+          suppressHydrationWarning={true}
+        >
           <div className="z-50 flex w-full justify-center border-b bg-white">
             <nav className="flex w-full max-w-[1200px] items-center justify-end gap-4 py-4 ">
               <Navigation navigation={navigation} />

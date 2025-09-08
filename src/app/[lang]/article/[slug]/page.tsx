@@ -7,7 +7,7 @@ import { RichText } from "@/components/RichText/RichText"
 import { ShareOnSocial } from "@/components/ShareOnSocial/ShareOnSocial"
 import { env } from "@/env.mjs"
 import { Locale } from "@/i18n/i18n"
-import { getArticleBySlug, getArticleMetadataBySlug } from "@/lib/client"
+import { getArticleBySlug, getArticleMetadataBySlug } from "@/lib/backend-client"
 import { getMetadataObj } from "@/utils/getMetadataObj"
 
 type ArticlePageProps = { params: Promise<{ slug: string; lang: Locale }> }
